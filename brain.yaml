@@ -1,0 +1,7 @@
+profile: lite
+tokenizer_encoding: cl100k_base
+default_budget_tokens: 2000
+allowed_budget_tokens: [1000, 2000, 4000]
+verification:
+  minimum_successful_episodes: 2
+  minimum_verifier_score: 1.0

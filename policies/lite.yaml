@@ -1,0 +1,5 @@
+profile: lite
+retrieval: lexical_metadata_only
+allow_untrusted_content_as_instruction: false
+event_log: append_only_hash_chain
+verified_skill_only: true
