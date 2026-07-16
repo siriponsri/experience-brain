@@ -5,6 +5,7 @@ __pycache__/
 .coverage
 htmlcov/
 *.py[cod]
+*.egg-info/
 reports/*.html
 capsules/*.md
 !capsules/.gitkeep
