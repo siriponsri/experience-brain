@@ -1,0 +1,26 @@
+# Default model for direct implementation work.
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+
+# Plan mode can override reasoning effort; model routing is enforced by the
+# project-local planner agent because `plan_mode_model` is not a supported key.
+plan_mode_reasoning_effort = "high"
+
+# ทำงานต่อเนื่องโดยไม่ถาม permission
+approval_policy = "never"
+
+# จำกัดการเขียนไว้ใน workspace เป็นค่าเริ่มต้น
+sandbox_mode = "workspace-write"
+
+allow_login_shell = false
+
+[sandbox_workspace_write]
+network_access = true
+writable_roots = []
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+
+[agents]
+max_threads = 4
+max_depth = 1
+job_max_runtime_seconds = 1800

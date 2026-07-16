@@ -9,3 +9,6 @@ htmlcov/
 reports/*.html
 capsules/*.md
 !capsules/.gitkeep
+.codex/*.local.toml
+.codex/**/.env
+.codex/**/secrets.*
