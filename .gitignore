@@ -9,6 +9,13 @@ htmlcov/
 reports/*.html
 capsules/*.md
 !capsules/.gitkeep
+wiki/runs/
+.benchmarks/
+.indexes/
+evaluations/runs/
+evaluations/workspaces/
+evaluations/runtime.yaml
+evaluations/approvals/*.yaml
 .codex/*.local.toml
 .codex/**/.env
 .codex/**/secrets.*

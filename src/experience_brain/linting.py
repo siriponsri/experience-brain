@@ -2,13 +2,22 @@ from __future__ import annotations
 
 from typing import Any
 
-from .capsule import count_tokens
 from .config import Settings
 from .event_store import read_events
+from .tokens import count_tokens
 from .util import canonical_json, read_markdown, read_yaml, sha256_text
+from .wiki import lint_wiki
 
 
 def lint(settings: Settings) -> list[str]:
+    if settings.condition == "c1":
+        return lint_wiki(settings)
+    if settings.condition != "c2":
+        return []
+    return _lint_lite(settings)
+
+
+def _lint_lite(settings: Settings) -> list[str]:
     errors: list[str] = []
     events = read_events(settings.root)
     previous = ""
