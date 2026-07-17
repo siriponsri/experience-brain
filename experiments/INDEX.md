@@ -21,8 +21,8 @@ Each experiment must state what changed, why it changed, what evidence exists, a
 
 | Experiment | Title | Software | Status | Change from previous | Evidence / finding | Better or worse? | Next action |
 |---|---|---:|---|---|---|---|---|
-| EXP-01 | Pre-reframe baseline | v0.1.0 | planned freeze | Existing Lite repository before owner-led reframe | To be frozen at tag `pre-reframe-v0.1.0` | Baseline only | Tag and document before restructuring |
-| EXP-02 | Lean Agent-CLI-first reframe | v0.2.0 target | planned | Two JSONL stores, MCP-first workflow, Markdown review, local dashboard | No result yet | Unknown | Implement after baseline tag is verified |
+| EXP-01 | Pre-reframe baseline | v0.1.0 | completed | Existing Lite repository before owner-led reframe | Frozen at annotated tag `pre-reframe-v0.1.0` targeting `dd2d3cf98d65b816f1ee79222d5ffc6e4e02d372` | Baseline only | Use tag for historical reference only |
+| EXP-02 | Lean Agent-CLI-first reframe | v0.2.0 target | active | Two JSONL stores, MCP-first workflow, Markdown review, local dashboard | Restructure active on branch `reframe/v0.2.0`; validation pending | Unknown | Complete lean POC foundation and run checks |
 
 Do not mark an experiment `best-so-far` without recorded evidence.
 
