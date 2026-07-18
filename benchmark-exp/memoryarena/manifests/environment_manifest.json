@@ -1,0 +1,26 @@
+{
+  "dependency_versions": {
+    "mcp": "installed; package does not expose __version__",
+    "pydantic": "2.13.4",
+    "typer": "0.27.0"
+  },
+  "experiment_id": "EXP-04",
+  "experience_brain": {
+    "git_commit": "56137ace6f27cdbaec2a0a98a5d3aa900830b07e",
+    "software_version": "v0.2.1"
+  },
+  "memoryarena": {
+    "git_commit": "6cd9de14b71915e39ac742a20dc33785e14b6aab",
+    "project_url": "https://github.com/ZexueHe/MemoryArena"
+  },
+  "model": "gpt-5-mini",
+  "model_version": null,
+  "operating_system": "Windows-10-10.0.22631-SP0",
+  "python_version": "3.11.9",
+  "reasoning_configuration": "medium",
+  "run_ids": {
+    "C0": "EXP04-FRMATH-SMOKE-C0-RUN001",
+    "C1": "EXP04-FRMATH-SMOKE-C1-RUN001",
+    "C2": "EXP04-FRMATH-SMOKE-C2-RUN001"
+  }
+}

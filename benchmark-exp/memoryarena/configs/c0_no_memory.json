@@ -1,0 +1,7 @@
+{
+  "condition": "C0",
+  "name": "No Persistent Memory",
+  "memory_system_name": "experience_brain_c0",
+  "persistent_memory": false,
+  "experience_brain_consolidation": false
+}

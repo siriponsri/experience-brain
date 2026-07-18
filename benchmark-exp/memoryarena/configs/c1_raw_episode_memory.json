@@ -1,0 +1,8 @@
+{
+  "condition": "C1",
+  "name": "Raw Episode Memory",
+  "memory_system_name": "experience_brain_c1",
+  "persistent_memory": true,
+  "experience_brain_consolidation": false,
+  "retrieval": "deterministic lexical overlap over first-party raw episode Events"
+}

@@ -1,0 +1,8 @@
+{
+  "condition": "C2",
+  "name": "Full Experience Brain",
+  "memory_system_name": "experience_brain_c2",
+  "persistent_memory": true,
+  "experience_brain_consolidation": true,
+  "retrieval": "Experience Brain project-aware retrieval over active Experiences"
+}

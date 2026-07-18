@@ -1,0 +1,15 @@
+runs/*
+!runs/.gitkeep
+results/*
+!results/.gitkeep
+*.env
+.env
+__pycache__/
+*.py[cod]
+*.log
+*.jsonl
+*.sqlite
+*.db
+external/
+datasets/
+cache/

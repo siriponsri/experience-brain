@@ -1,0 +1,20 @@
+{
+  "benchmark_name": "MemoryArena",
+  "benchmark_paper": "MemoryArena: Benchmarking Agent Memory in Interdependent Multi-Session Agentic Tasks",
+  "benchmark_paper_url": "https://huggingface.co/papers/2602.16313",
+  "dataset_source": "https://huggingface.co/datasets/ZexueHe/memoryarena",
+  "dataset_license": "CC-BY-4.0; visible on Hugging Face dataset page HTML but not in API cardData",
+  "dataset_revision": "da1a37c8b19280e18627ca01cf368195a5e1d92e",
+  "subset": "formal_reasoning_math",
+  "split": "test",
+  "selected_task_ids": [0, 1, 2, 3, 4],
+  "selected_paper_names": [
+    "2503.19064",
+    "2510.16976",
+    "2312.05134_part_2",
+    "2408.12186",
+    "2410.01101"
+  ],
+  "retrieval_date": "2026-07-18",
+  "notes": "Only IDs and paper names are recorded. Questions, gold answers, and backgrounds are not committed."
+}
