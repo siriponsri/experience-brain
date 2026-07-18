@@ -48,6 +48,7 @@ Breaking restructuring is allowed because the new vision takes priority over bac
 
 - append-only `events.jsonl`
 - append-only `experiences.jsonl`
+- append-only `knowledge.jsonl`
 - stable Pydantic schemas
 - MCP server
 - Codex CLI-first reference workflow
@@ -56,6 +57,8 @@ Breaking restructuring is allowed because the new vision takes priority over bac
 - candidate experience consolidation
 - cross-session retrieval
 - provenance from experience back to events
+- provenance from knowledge back to source files
+- Knowledge Inbox for external files and source digests
 - review queue
 - Markdown review report
 - single-owner local Streamlit dashboard
@@ -89,7 +92,7 @@ Codex CLI or another Agent
             ↓
 Capture → Consolidate → Retrieve → Review / Update
             ↓
- events.jsonl + experiences.jsonl
+ events.jsonl + experiences.jsonl + knowledge.jsonl
             ↓
 Markdown Reports + Local Dashboard
 ```
@@ -216,6 +219,23 @@ Additionally:
 - version and experiment history are auditable;
 - tests cover the critical path; and
 - no unsupported benchmark claim is made.
+
+## 8.1 Dual-Memory Foundation
+
+EXP-03.2 extends the POC from Experience-only memory to a dual-memory foundation:
+
+```text
+Knowledge = what the Agent has read
+Experience = what the Agent has done
+Rules = what the Owner or active project requires
+Working Context = what matters now
+```
+
+`data/knowledge.jsonl` is the append-only canonical store for information
+extracted from external files or sources. Knowledge must preserve source
+provenance and must not be represented as an Agent-tested lesson. Knowledge may
+inform an Agent action, but only grounded episode and outcome evidence may create
+Experience in `data/experiences.jsonl`.
 
 ## 9. Post-POC Research Roadmap
 

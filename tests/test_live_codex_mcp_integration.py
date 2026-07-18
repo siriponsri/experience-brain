@@ -38,6 +38,13 @@ def test_live_codex_mcp_three_session_workflow(brain_root: Path) -> None:
             "review_latest",
             "record_retrieval_usage",
             "record_outcome_feedback",
+            "list_inbox_files",
+            "inspect_inbox_file",
+            "extract_inbox_file",
+            "process_inbox",
+            "save_knowledge_digest",
+            "query_knowledge",
+            "query_memory",
         } <= tools
 
         provenance: dict[str, Any] = {
@@ -161,6 +168,7 @@ def test_live_codex_mcp_three_session_workflow(brain_root: Path) -> None:
             },
         )
         assert related["items"]
+        assert related["retrieval_result"] == "match"
         assert related["items"][0]["label"] == "Project Experience"
         used_id = str(related["items"][0]["id"])
         await _call(
@@ -198,6 +206,9 @@ def test_live_codex_mcp_three_session_workflow(brain_root: Path) -> None:
         ]
         assert usage_events
         assert usage_events[-1].metadata["used_experience_ids"] == [used_id]
+        assert usage_events[-1].metadata["retrieval_result"] == "match"
+        assert usage_events[-1].metadata["usage"] == "used"
+        assert usage_events[-1].metadata["task_outcome"] == "success"
         assert any(exp.last_used_session_id == "RUN-002" for exp in read_experiences(brain_root))
 
         await _call(
@@ -217,7 +228,26 @@ def test_live_codex_mcp_three_session_workflow(brain_root: Path) -> None:
             {"project": "docs-example", "question": "README license wording"},
         )
         assert unrelated["items"] == []
+        assert unrelated["retrieval_result"] == "no_match"
         assert unrelated["briefing"] == "No relevant experience found."
+
+        no_match_usage = await _call(
+            server,
+            "record_retrieval_usage",
+            {
+                **provenance,
+                "run_id": "RUN-003",
+                "project": "docs-example",
+                "session_id": "RUN-003",
+                "query": "README license wording",
+                "retrieved_experience_ids": [],
+                "stage": "pre_task",
+                "task_outcome": "unknown",
+            },
+        )
+        assert no_match_usage["retrieval_result"] == "no_match"
+        assert no_match_usage["usage"] == "unavailable"
+        assert no_match_usage["task_outcome"] == "unknown"
 
         external = await _call(
             server,

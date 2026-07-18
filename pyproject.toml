@@ -4,14 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "experience-brain"
-version = "0.2.1"
+version = "0.2.3"
 description = "Lean Agent-CLI-first Experience Brain POC with live MCP workflow"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.11,<3.12"
 dependencies = [
   "mcp>=1.0,<2",
+  "openpyxl>=3.1,<4",
   "pydantic>=2.7,<3",
+  "pypdf>=4,<7",
+  "python-docx>=1.1,<2",
   "streamlit>=1.36,<2",
   "typer>=0.12,<1",
 ]

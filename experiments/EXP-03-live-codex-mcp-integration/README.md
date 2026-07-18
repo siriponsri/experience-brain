@@ -60,6 +60,13 @@ initial grounded calculator task, a related later session with retrieval usage,
 an unrelated docs task with no primary retrieval, and an external-project
 retrieval-label check.
 
+Owner live validation continued in EXP-03.1. The existing proposed Experience
+`EXP-327D87ACD4` appeared in the persistent Dashboard Review Queue even though
+the newest Markdown report had no candidates. The dashboard Confirm action
+appended an owner-authored revision, preserved the original candidate and
+evidence references, and made the confirmed revision retrievable in a later
+related query. An unrelated clinical query returned no primary Experience.
+
 ## Limitations
 
 This is a development integration experiment only. It does not begin or imply a

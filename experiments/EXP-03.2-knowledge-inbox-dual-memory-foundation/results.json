@@ -1,0 +1,30 @@
+{
+  "experiment_id": "EXP-03.2",
+  "software_version": "v0.2.3",
+  "real_memoryarena_inference_run": false,
+  "runs": [
+    {
+      "run_id": "RUN-20260718203651858987",
+      "commit": "b6fb7e07ab7961f3fe7e56d78a8f490990571618",
+      "started_at": "2026-07-18T20:36:51.8589875+07:00",
+      "ended_at": "2026-07-18T20:42:27.0566470+07:00",
+      "result": "passed",
+      "notes": "Knowledge Inbox and dual-memory foundation passed isolated smoke tests, full pytest, Ruff, mypy, store lint, dashboard startup, and MCP startup/process_inbox validation."
+    }
+  ],
+  "checks": {
+    "knowledge_inbox_smoke": "passed: Markdown/TXT, JSON, XLSX, duplicate, unsupported binary",
+    "dashboard_inbox_knowledge": "passed: AppTest rendered Inbox and Knowledge views",
+    "mcp_process_inbox": "passed: MCP startup, process_inbox, and query_memory",
+    "unified_retrieval": "passed: separated Knowledge and Experience sections",
+    "pytest": "passed: 22 passed",
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "mypy": "passed: strict",
+    "package_install": "passed: editable install experience-brain 0.2.3",
+    "cli_lint": "passed",
+    "dashboard_startup": "passed: Streamlit health endpoint returned ok",
+    "mcp_startup": "passed: in-process tool listing and process_inbox smoke",
+    "real_memoryarena_inference": "not_started"
+  }
+}

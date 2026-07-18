@@ -11,9 +11,17 @@ from .capture import end_session as capture_end_session
 from .capture import record_event
 from .capture import start_session as capture_start_session
 from .consolidate import consolidate_session
+from .knowledge import list_inbox_status, process_inbox
 from .models import SCHEMA_VERSION, Actor, Event, EventType, Provenance
-from .retrieve import format_briefing, record_retrieval_usage, retrieve_experience
-from .store import ensure_store, lint_store, read_events, read_experiences
+from .retrieve import (
+    format_briefing,
+    format_knowledge_briefing,
+    record_retrieval_usage,
+    retrieve_experience,
+    retrieve_knowledge,
+    retrieve_memory,
+)
+from .store import ensure_store, lint_store, read_events, read_experiences, read_knowledge
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -29,6 +37,7 @@ def status(root: Path = typer.Option(Path("."))) -> None:
     typer.echo(f"Experience Brain {SCHEMA_VERSION}")
     typer.echo(f"events={len(read_events(resolved))}")
     typer.echo(f"experiences={len(read_experiences(resolved))}")
+    typer.echo(f"knowledge={len(read_knowledge(resolved))}")
 
 
 @app.command("lint")
@@ -102,6 +111,7 @@ def start_session(
     reasoning_effort: str | None = typer.Option(None),
     experiment_id: str | None = typer.Option(None),
     run_id: str | None = typer.Option(None),
+    retry: bool = typer.Option(False),
     root: Path = typer.Option(Path(".")),
 ) -> None:
     event = capture_start_session(
@@ -207,6 +217,75 @@ def query(
     typer.echo(format_briefing(items))
 
 
+@app.command("list-inbox")
+def list_inbox(root: Path = typer.Option(Path("."))) -> None:
+    for item in list_inbox_status(_root(root)):
+        typer.echo(json.dumps(item, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("process-inbox")
+def process_inbox_command(
+    project: str = typer.Option("general"),
+    agent: str | None = typer.Option("codex_cli"),
+    model: str | None = typer.Option(None),
+    reasoning_effort: str | None = typer.Option(None),
+    experiment_id: str | None = typer.Option("EXP-03.2"),
+    run_id: str | None = typer.Option(None),
+    retry: bool = typer.Option(False),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    results = process_inbox(
+        _root(root),
+        project=project,
+        retry=retry,
+        provenance=Provenance(
+            agent=agent,
+            model=model,
+            reasoning_effort=reasoning_effort,
+            experiment_id=experiment_id,
+            run_id=run_id,
+            source="process_inbox",
+        ),
+    )
+    typer.echo(f"inbox files processed={len(results)}")
+    for result in results:
+        typer.echo(
+            json.dumps(
+                {
+                    "filename": result.filename,
+                    "status": result.status,
+                    "knowledge_id": result.knowledge_id,
+                    "duplicate_of": result.duplicate_of,
+                    "error": result.error,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+        )
+
+
+@app.command("query-knowledge")
+def query_knowledge_command(
+    question: str,
+    project: str | None = typer.Option(None),
+    limit: int = typer.Option(5),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    items = retrieve_knowledge(_root(root), question, project=project, limit=limit)
+    typer.echo(format_knowledge_briefing(items))
+
+
+@app.command("query-memory")
+def query_memory_command(
+    question: str,
+    project: str | None = typer.Option(None),
+    limit: int = typer.Option(5),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    payload = retrieve_memory(_root(root), question, project=project, limit=limit)
+    typer.echo(payload["briefing"])
+
+
 @app.command("record-retrieval-usage")
 def record_retrieval_usage_command(
     project: str,
@@ -216,6 +295,9 @@ def record_retrieval_usage_command(
     used_experience_id: list[str] = typer.Option([]),
     stage: str = typer.Option("pre_task"),
     outcome: str | None = typer.Option(None),
+    retrieval_result: str | None = typer.Option(None),
+    usage: str | None = typer.Option(None),
+    task_outcome: str | None = typer.Option(None),
     root: Path = typer.Option(Path(".")),
 ) -> None:
     event = record_retrieval_usage(
@@ -227,6 +309,9 @@ def record_retrieval_usage_command(
         used_experience_ids=used_experience_id,
         stage=stage,
         outcome=outcome,
+        retrieval_result=retrieval_result,  # type: ignore[arg-type]
+        usage=usage,  # type: ignore[arg-type]
+        task_outcome=task_outcome,  # type: ignore[arg-type]
     )
     typer.echo(event.id)
 
@@ -242,9 +327,9 @@ def review_latest(root: Path = typer.Option(Path("."))) -> None:
 
 @app.command()
 def dashboard(root: Path = typer.Option(Path("."))) -> None:
-    module = "experience_brain.dashboard"
+    script = Path(__file__).with_name("dashboard.py")
     subprocess.run(
-        [sys.executable, "-m", "streamlit", "run", "-m", module, "--", "--root", str(_root(root))],
+        [sys.executable, "-m", "streamlit", "run", str(script), "--", "--root", str(_root(root))],
         check=False,
     )
 
