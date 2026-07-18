@@ -1,0 +1,44 @@
+{
+  "experiment_id": "EXP-03",
+  "software_version": "v0.2.1",
+  "runs": [
+    {
+      "run_id": "RUN-001",
+      "commit": "0601b02e0f8023b03aff8ceb16f0f4322d3c4068",
+      "started_at": "2026-07-18T08:49:13.1356725+07:00",
+      "ended_at": "2026-07-18T08:57:21.4077637+07:00",
+      "result": "passed",
+      "notes": "Initial live-style session created a grounded calculator pytest Experience with evidence event IDs, redaction, provenance, and Markdown review."
+    },
+    {
+      "run_id": "RUN-002",
+      "commit": "0601b02e0f8023b03aff8ceb16f0f4322d3c4068",
+      "started_at": "2026-07-18T08:49:13.1356725+07:00",
+      "ended_at": "2026-07-18T08:57:21.4077637+07:00",
+      "result": "passed",
+      "notes": "Related later session retrieved the prior Experience, recorded retrieval usage, and appended last-used metadata through a superseding Experience record."
+    },
+    {
+      "run_id": "RUN-003",
+      "commit": "0601b02e0f8023b03aff8ceb16f0f4322d3c4068",
+      "started_at": "2026-07-18T08:49:13.1356725+07:00",
+      "ended_at": "2026-07-18T08:57:21.4077637+07:00",
+      "result": "passed",
+      "notes": "Unrelated docs session returned no relevant Experience as primary context."
+    }
+  ],
+  "checks": {
+    "focused_mcp_integration": "passed",
+    "pytest": "passed: 10 passed",
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "mypy": "passed",
+    "package_install": "passed: editable install experience-brain 0.2.1",
+    "cli_help": "passed",
+    "cli_status": "passed: events=0 experiences=0 on project store",
+    "cli_lint": "passed",
+    "mcp_startup": "passed: stdio server stayed running against temp root",
+    "codex_mcp_listing": "passed: experience-brain enabled via config override",
+    "full_validation": "passed"
+  }
+}

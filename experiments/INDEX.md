@@ -22,7 +22,8 @@ Each experiment must state what changed, why it changed, what evidence exists, a
 | Experiment | Title | Software | Status | Change from previous | Evidence / finding | Better or worse? | Next action |
 |---|---|---:|---|---|---|---|---|
 | EXP-01 | Pre-reframe baseline | v0.1.0 | completed | Existing Lite repository before owner-led reframe | Frozen at annotated tag `pre-reframe-v0.1.0` targeting `dd2d3cf98d65b816f1ee79222d5ffc6e4e02d372` | Baseline only | Use tag for historical reference only |
-| EXP-02 | Lean Agent-CLI-first reframe | v0.2.0 target | active | Two JSONL stores, MCP-first workflow, Markdown review, local dashboard | Restructure active on branch `reframe/v0.2.0`; validation pending | Unknown | Complete lean POC foundation and run checks |
+| EXP-02 | Lean Agent-CLI-first reframe | v0.2.0 target | completed | Two JSONL stores, MCP-first workflow, Markdown review, local dashboard | Lean foundation present on branch `reframe/v0.2.0`; EXP-03 starts live MCP workflow validation | Better foundation for POC, not benchmark evidence | Use as baseline for live Codex MCP integration |
+| EXP-03 | Live Codex MCP Integration | v0.2.1 | completed | Adds real session/event MCP capture, retrieval usage tracing, Codex wiring docs, and live-style fixture sessions | 10 pytest tests pass; Ruff, mypy, install, CLI, lint, MCP startup, and Codex MCP listing pass | Better for POC live workflow; not benchmark evidence | Owner smoke-test from an interactive Codex CLI session |
 
 Do not mark an experiment `best-so-far` without recorded evidence.
 
