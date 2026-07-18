@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-SCHEMA_VERSION = "v0.2.0"
+SCHEMA_VERSION = "v0.2.1"
 
 
 class EventType(StrEnum):

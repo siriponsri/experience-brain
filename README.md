@@ -58,11 +58,35 @@ The MCP server name is `experience-brain`.
 experience-brain-mcp
 ```
 
-Initial MCP tools:
+EXP-03 MCP tools:
 
+- `start_session`
+- `end_session`
+- `record_event`
 - `process_session`
 - `query_experience`
 - `review_latest`
+- `record_retrieval_usage`
+- `record_outcome_feedback`
+
+Codex CLI can be wired to the local MCP server with:
+
+```powershell
+codex mcp add experience-brain -- python -m experience_brain.mcp_server --root .
+```
+
+Or add this server stanza to a local Codex config:
+
+```toml
+[mcp_servers.experience-brain]
+command = "python"
+args = ["-m", "experience_brain.mcp_server", "--root", "."]
+cwd = "."
+```
+
+Use GPT-5.5 with medium reasoning for normal POC work. Escalate reasoning only
+for complex debugging or architecture blockers, then record the escalation in
+provenance.
 
 ## Dashboard
 
@@ -95,4 +119,3 @@ works end to end.
 ## License
 
 Apache License 2.0.
-

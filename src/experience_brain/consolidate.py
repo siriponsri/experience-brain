@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .models import Authority, Experience, ExperienceStatus, Provenance, StoredEvent
+from .models import SCHEMA_VERSION, Authority, Experience, ExperienceStatus, Provenance, StoredEvent
 from .store import append_experience, read_events, read_experiences, sha256_text
 
 
@@ -73,7 +73,7 @@ def consolidate_session(root: Path, session_id: str | None = None) -> tuple[int,
                 failure_count=failure_count,
                 provenance=Provenance(
                     source="consolidate_session",
-                    software_version="v0.2.0",
+                    software_version=SCHEMA_VERSION,
                     run_id=session_events[0].provenance.run_id,
                     agent=session_events[0].provenance.agent,
                     model=session_events[0].provenance.model,

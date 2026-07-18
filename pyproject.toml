@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "experience-brain"
-version = "0.2.0"
-description = "Lean Agent-CLI-first Experience Brain POC"
+version = "0.2.1"
+description = "Lean Agent-CLI-first Experience Brain POC with live MCP workflow"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.11,<3.12"
@@ -48,4 +48,3 @@ select = ["E", "F", "I", "UP"]
 python_version = "3.11"
 strict = true
 files = ["src", "tests"]
-

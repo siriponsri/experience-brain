@@ -7,10 +7,12 @@ from pathlib import Path
 
 import typer
 
-from .capture import capture_event
+from .capture import end_session as capture_end_session
+from .capture import record_event
+from .capture import start_session as capture_start_session
 from .consolidate import consolidate_session
-from .models import Event
-from .retrieve import format_briefing, retrieve_experience
+from .models import SCHEMA_VERSION, Actor, Event, EventType, Provenance
+from .retrieve import format_briefing, record_retrieval_usage, retrieve_experience
 from .store import ensure_store, lint_store, read_events, read_experiences
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
@@ -24,7 +26,7 @@ def _root(root: Path) -> Path:
 def status(root: Path = typer.Option(Path("."))) -> None:
     resolved = _root(root)
     ensure_store(resolved)
-    typer.echo("Experience Brain v0.2.0")
+    typer.echo(f"Experience Brain {SCHEMA_VERSION}")
     typer.echo(f"events={len(read_events(resolved))}")
     typer.echo(f"experiences={len(read_experiences(resolved))}")
 
@@ -51,9 +53,137 @@ def import_events(path: Path, root: Path = typer.Option(Path("."))) -> None:
         if not isinstance(loaded, dict):
             raise typer.BadParameter(f"line {number} is not an object")
         event = Event.model_validate(loaded)
-        result = capture_event(resolved, event)
+        result = record_event(
+            resolved,
+            event_id=event.id,
+            event_type=event.type,
+            actor=event.actor,
+            project=event.project,
+            session_id=event.session_id,
+            task_id=event.task_id,
+            source=event.source,
+            content=event.content,
+            tool_name=event.tool_name,
+            error_signature=event.error_signature,
+            outcome=event.outcome,
+            metadata=event.metadata,
+            provenance=event.provenance,
+        )
         added += int(result.id == event.id)
     typer.echo(f"events imported={added} skipped={skipped}")
+
+
+def _provenance(
+    *,
+    agent: str | None,
+    model: str | None,
+    reasoning_effort: str | None,
+    experiment_id: str | None,
+    run_id: str | None,
+) -> Provenance:
+    return Provenance(
+        agent=agent,
+        model=model,
+        reasoning_effort=reasoning_effort,
+        experiment_id=experiment_id,
+        run_id=run_id,
+        source="codex_cli",
+    )
+
+
+@app.command("start-session")
+def start_session(
+    project: str,
+    session_id: str,
+    goal: str = typer.Option(""),
+    task_id: str | None = typer.Option(None),
+    agent: str | None = typer.Option("codex_cli"),
+    model: str | None = typer.Option(None),
+    reasoning_effort: str | None = typer.Option(None),
+    experiment_id: str | None = typer.Option(None),
+    run_id: str | None = typer.Option(None),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    event = capture_start_session(
+        _root(root),
+        project=project,
+        session_id=session_id,
+        goal=goal,
+        task_id=task_id,
+        provenance=_provenance(
+            agent=agent,
+            model=model,
+            reasoning_effort=reasoning_effort,
+            experiment_id=experiment_id,
+            run_id=run_id,
+        ),
+    )
+    typer.echo(event.id)
+
+
+@app.command("end-session")
+def end_session(
+    project: str,
+    session_id: str,
+    summary: str = typer.Option(""),
+    outcome: str | None = typer.Option(None),
+    consolidate: bool = typer.Option(True),
+    task_id: str | None = typer.Option(None),
+    agent: str | None = typer.Option("codex_cli"),
+    model: str | None = typer.Option(None),
+    reasoning_effort: str | None = typer.Option(None),
+    experiment_id: str | None = typer.Option(None),
+    run_id: str | None = typer.Option(None),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    event = capture_end_session(
+        _root(root),
+        project=project,
+        session_id=session_id,
+        summary=summary,
+        outcome=outcome,
+        task_id=task_id,
+        provenance=_provenance(
+            agent=agent,
+            model=model,
+            reasoning_effort=reasoning_effort,
+            experiment_id=experiment_id,
+            run_id=run_id,
+        ),
+    )
+    typer.echo(event.id)
+    if consolidate:
+        count, report = consolidate_session(_root(root), session_id)
+        typer.echo(f"experiences created={count}")
+        typer.echo(f"review report={report}")
+
+
+@app.command("record-event")
+def record_event_command(
+    project: str,
+    session_id: str,
+    event_type: str,
+    actor: str,
+    content: str = typer.Option(""),
+    task_id: str | None = typer.Option(None),
+    tool_name: str | None = typer.Option(None),
+    error_signature: str | None = typer.Option(None),
+    outcome: str | None = typer.Option(None),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    event = record_event(
+        _root(root),
+        project=project,
+        session_id=session_id,
+        event_type=EventType(event_type),
+        actor=Actor(actor),
+        content=content,
+        task_id=task_id,
+        tool_name=tool_name,
+        error_signature=error_signature,
+        outcome=outcome,
+    )
+    typer.echo(event.id)
 
 
 @app.command("process-session")
@@ -75,6 +205,30 @@ def query(
 ) -> None:
     items = retrieve_experience(_root(root), question, project=project, limit=limit)
     typer.echo(format_briefing(items))
+
+
+@app.command("record-retrieval-usage")
+def record_retrieval_usage_command(
+    project: str,
+    session_id: str,
+    query_text: str,
+    retrieved_experience_id: list[str] = typer.Option(...),
+    used_experience_id: list[str] = typer.Option([]),
+    stage: str = typer.Option("pre_task"),
+    outcome: str | None = typer.Option(None),
+    root: Path = typer.Option(Path(".")),
+) -> None:
+    event = record_retrieval_usage(
+        _root(root),
+        project=project,
+        session_id=session_id,
+        query=query_text,
+        retrieved_experience_ids=retrieved_experience_id,
+        used_experience_ids=used_experience_id,
+        stage=stage,
+        outcome=outcome,
+    )
+    typer.echo(event.id)
 
 
 @app.command("review-latest")
