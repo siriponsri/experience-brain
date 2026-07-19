@@ -16,12 +16,23 @@ This file summarizes the owner decisions, architecture, implementation progress,
 
 The next session should continue from the **local repository state**, not assume that the GitHub `main` branch contains the latest work.
 
-At the time of handoff:
+At the time of the original handoff:
 
 - GitHub remote `main` still appears to be behind the local reframe work.
 - The local branch used for the reframe is `reframe/v0.2.0`.
 - Do **not** reset local work to remote `main`.
 - Do **not** push, merge, retag, or rewrite history without explicit owner approval.
+
+Post-merge freeze-review update:
+
+- `reframe/v0.2.0` has been merged into `main`.
+- `main` and `origin/main` contain the validated reframe through merge commit
+  `5ebaa08`.
+- EXP-03.2 owner-live Knowledge Inbox validation was committed as `a862462`.
+- The current main-store status is expected to be `events=9`,
+  `experiences=2`, and `knowledge=3`, because append-only history includes the
+  owner-live Knowledge record and the invalidation record for the accidental
+  `.gitkeep` inbox control-file record.
 
 The next session must first inspect:
 
@@ -373,7 +384,7 @@ Reported local commit:
 2e1f3d8  EXP-03.2 — Knowledge Inbox & Dual-Memory Foundation
 ```
 
-Software status reported:
+Software status before owner-live inbox processing was:
 
 ```text
 Experience Brain v0.2.3
@@ -382,7 +393,9 @@ experiences=2
 knowledge=0
 ```
 
-The zero Knowledge count is expected if the owner has not yet processed real files in the main store.
+After owner-live validation, the main store has `knowledge=3`: the owner-live
+Knowledge record, the accidental `.gitkeep` control-file record, and an
+append-only invalidation record for that control-file record.
 
 ### Inbox
 

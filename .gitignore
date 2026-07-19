@@ -6,6 +6,8 @@ __pycache__/
 htmlcov/
 *.py[cod]
 *.egg-info/
+inbox/*
+!inbox/.gitkeep
 reports/*.html
 capsules/*.md
 !capsules/.gitkeep

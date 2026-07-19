@@ -73,7 +73,7 @@ pytest, Ruff, mypy, and `experience lint` passed.
 
 No MemoryArena real inference was started.
 
-Owner-live validation on commit `2e1f3d8` also passed. A harmless Markdown file
+Owner-live validation on commit `a862462` also passed. A harmless Markdown file
 placed in `inbox/` produced one source-provenanced Knowledge record for the
 owner test document. Ingestion did not change `data/experiences.jsonl`. CLI and
 in-process MCP retrieval found the Knowledge in a later isolated context, unified

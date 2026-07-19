@@ -168,12 +168,19 @@ mypy src tests
 experience --help
 ```
 
-## Scope
+## Scope and Limitations
 
-This POC intentionally does not include a benchmark harness, vector database,
-knowledge graph, cloud deployment, REST API, autonomous background agent, or
-multi-user service. Benchmark and paper work are deferred until the POC lifecycle
-works end to end.
+This POC intentionally does not include vector database retrieval, embeddings,
+knowledge graph, OCR, cloud deployment, REST API, autonomous background agent, or
+multi-user service.
+
+MemoryArena support is present only as an isolated dry-validation adapter and
+protocol draft. No real benchmark inference has been run, and Experience Brain
+does not make a benchmark-performance claim yet.
+
+Current retrieval is lexical. Built-in Knowledge digestion is heuristic and
+provider-agnostic. PDF support is text-extraction only; scanned or image-only
+PDFs are not OCRed.
 
 ## License
 

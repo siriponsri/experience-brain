@@ -61,7 +61,8 @@ experience-brain/
 │   └── dashboard.py
 ├── data/
 │   ├── events.jsonl
-│   └── experiences.jsonl
+│   ├── experiences.jsonl
+│   └── knowledge.jsonl
 ├── reports/
 ├── experiments/
 │   └── INDEX.md
