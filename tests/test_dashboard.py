@@ -5,14 +5,24 @@ from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 from experience_brain.capture import capture_event
-from experience_brain.models import Actor, Event, EventType, Experience, ExperienceStatus
+from experience_brain.knowledge import process_inbox
+from experience_brain.models import (
+    Actor,
+    Event,
+    EventType,
+    Experience,
+    ExperienceStatus,
+    KnowledgeStatus,
+)
 from experience_brain.retrieve import retrieve_experience
 from experience_brain.store import (
     append_experience,
     current_experiences,
+    current_knowledge,
     lint_store,
     pending_review_experiences,
     read_experiences,
+    read_knowledge,
     review_experience,
 )
 
@@ -109,3 +119,72 @@ def test_dashboard_renders_owner_views_from_isolated_store(brain_root: Path) -> 
     rendered = confirm.click().run(timeout=10)
     assert not rendered.exception
     assert pending_review_experiences(brain_root) == []
+
+
+def test_dashboard_overview_uses_canonical_store_values(brain_root: Path) -> None:
+    _candidate(brain_root)
+    script = (
+        "from pathlib import Path\n"
+        "from experience_brain.dashboard import render_dashboard\n"
+        f"render_dashboard(Path({str(brain_root)!r}))\n"
+    )
+
+    rendered = AppTest.from_string(script).run(timeout=10)
+
+    assert not rendered.exception
+    metrics = {metric.label: metric.value for metric in rendered.metric}
+    assert metrics == {
+        "Software": "v0.3.1",
+        "Store integrity": "Healthy",
+        "Grounded Experience": "0",
+        "Knowledge": "0",
+        "Pending reviews": "1",
+        "Sessions": "1",
+    }
+    assert any(markdown.value == "**Decision**" for markdown in rendered.markdown)
+
+
+def test_dashboard_knowledge_actions_remain_append_only(brain_root: Path) -> None:
+    source = brain_root / "inbox" / "source-guide.txt"
+    source.write_text("Source guidance requires an evidence review.", encoding="utf-8")
+    process_inbox(brain_root, project="demo")
+    before = (brain_root / "data" / "knowledge.jsonl").read_bytes()
+    script = (
+        "from pathlib import Path\n"
+        "from experience_brain.dashboard import render_dashboard\n"
+        f"render_dashboard(Path({str(brain_root)!r}))\n"
+    )
+    rendered = AppTest.from_string(script).run(timeout=10)
+
+    confirm = next(button for button in rendered.button if button.label == "Confirm")
+    rendered = confirm.click().run(timeout=10)
+
+    assert not rendered.exception
+    assert (brain_root / "data" / "knowledge.jsonl").read_bytes().startswith(before)
+    current = current_knowledge(brain_root)
+    assert len(current) == 1
+    assert current[0].status == KnowledgeStatus.confirmed
+    assert current[0].supersedes is not None
+
+
+def test_dashboard_processes_inbox_without_record_ids(brain_root: Path) -> None:
+    source = brain_root / "inbox" / "owner-guide.txt"
+    source.write_text("Owner guide: inspect source provenance before use.", encoding="utf-8")
+    script = (
+        "from pathlib import Path\n"
+        "from experience_brain.dashboard import render_dashboard\n"
+        f"render_dashboard(Path({str(brain_root)!r}))\n"
+    )
+    rendered = AppTest.from_string(script).run(timeout=10)
+    labels = [button.label for button in rendered.button]
+    assert "Process Inbox" in labels
+    assert "Retry Processing" in labels
+
+    process = next(button for button in rendered.button if button.label == "Process Inbox")
+    rendered = process.click().run(timeout=10)
+
+    assert not rendered.exception
+    knowledge = read_knowledge(brain_root)
+    assert len(knowledge) == 1
+    assert knowledge[0].source_filename == "owner-guide.txt"
+    assert knowledge[0].status == KnowledgeStatus.proposed

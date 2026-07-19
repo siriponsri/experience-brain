@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import html
 import json
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
+from typing import Literal
 
 import streamlit as st
 
@@ -97,6 +100,51 @@ def _apply_knowledge_review(knowledge_id: str, action: str, root: Path) -> None:
     _flash(f"{labels[action]} Knowledge {knowledge_id}. New record: {reviewed.id}")
 
 
+def _render_page_heading(title: str, count: str | None = None) -> None:
+    heading, meta = st.columns([5, 2], vertical_alignment="bottom")
+    heading.markdown(f"## {title}")
+    if count:
+        meta.caption(count)
+
+
+def _recent_activity(
+    events: list[StoredEvent],
+    experiences: list[StoredExperience],
+    knowledge: list[StoredKnowledge],
+    *,
+    limit: int = 6,
+) -> list[tuple[datetime, str, str, str]]:
+    activity: list[tuple[datetime, str, str, str]] = []
+    for event in events:
+        activity.append(
+            (
+                event.timestamp,
+                "Event",
+                event.type.value.replace("_", " ").title(),
+                event.project,
+            )
+        )
+    for experience in experiences:
+        activity.append(
+            (
+                experience.ingested_at,
+                "Grounded Experience",
+                experience.status.value.title(),
+                experience.project,
+            )
+        )
+    for item in knowledge:
+        activity.append(
+            (
+                item.ingested_at,
+                "Knowledge",
+                item.status.value.title(),
+                item.source_filename,
+            )
+        )
+    return sorted(activity, key=lambda item: item[0], reverse=True)[:limit]
+
+
 def _render_evidence(experience: StoredExperience, events_by_id: dict[str, StoredEvent]) -> None:
     st.markdown("**Evidence**")
     for event_id in experience.evidence_event_ids:
@@ -130,33 +178,79 @@ def _render_overview(
         ExperienceStatus.confirmed,
         ExperienceStatus.refined,
     }
-    latest_session = max(events, key=lambda event: event.timestamp).session_id if events else "None"
+    reusable_knowledge_statuses = {
+        KnowledgeStatus.proposed,
+        KnowledgeStatus.active,
+        KnowledgeStatus.confirmed,
+    }
+    latest_event = max(events, key=lambda event: event.timestamp) if events else None
+    latest_session = latest_event.session_id if latest_event else "None recorded"
+    errors = lint_store(root)
+    active_count = sum(experience.status in active_statuses for experience in current)
+    knowledge_count = sum(
+        item.status in reusable_knowledge_statuses for item in current_knowledge_items
+    )
+    session_count = len({event.session_id for event in events})
+
+    _render_page_heading("Overview", "Canonical local data")
     columns = st.columns(6)
     columns[0].metric("Software", SCHEMA_VERSION)
-    columns[1].metric("Events", len(events))
-    columns[2].metric("Experience records", len(experiences))
-    columns[3].metric("Knowledge records", len(knowledge))
+    columns[1].metric("Store integrity", "Healthy" if not errors else f"{len(errors)} issues")
+    columns[2].metric("Grounded Experience", active_count)
+    columns[3].metric("Knowledge", knowledge_count)
     columns[4].metric("Pending reviews", len(pending))
-    columns[5].metric(
-        "Confirmed / active", sum(experience.status in active_statuses for experience in current)
-    )
-    st.divider()
-    details = st.columns(2)
-    details[0].subheader("Latest session")
-    details[0].code(latest_session)
-    details[1].subheader("Latest experiment")
-    details[1].code(_latest_experiment(root))
-    errors = lint_store(root)
-    if errors:
-        st.error(f"Store integrity: {len(errors)} issue(s)")
-        with st.expander("View integrity issues"):
-            for error in errors:
-                st.write(error)
-    else:
-        st.success("Store integrity passed")
+    columns[5].metric("Sessions", session_count)
+
+    st.markdown("### Current state")
+    details = st.columns([3, 2, 2])
+    with details[0].container(border=True):
+        st.caption("LATEST SESSION")
+        st.markdown(f"**{latest_session}**")
+        if latest_event:
+            st.caption(f"{latest_event.project} | {latest_event.timestamp.isoformat()}")
+    with details[1].container(border=True):
+        st.caption("LATEST EXPERIMENT")
+        st.markdown(f"**{_latest_experiment(root)}**")
+        st.caption("From recorded experiment results")
+    with details[2].container(border=True):
+        st.caption("REVIEW QUEUE")
+        st.markdown(f"**{len(pending)} pending**")
+        st.caption("Owner decisions required")
+
+    activity, integrity = st.columns([5, 3])
+    with activity:
+        st.markdown("### Recent activity")
+        recent = _recent_activity(events, experiences, knowledge)
+        if not recent:
+            st.info("No activity recorded.")
+        for timestamp, kind, state, context in recent:
+            with st.container(border=True):
+                label, summary, when = st.columns([2, 4, 3], vertical_alignment="center")
+                colors: dict[
+                    str,
+                    Literal["red", "orange", "yellow", "blue", "green", "violet", "gray"],
+                ] = {"Knowledge": "blue", "Grounded Experience": "violet"}
+                label.badge(kind, color=colors.get(kind, "gray"))
+                summary.markdown(f"**{state}**")
+                summary.caption(context)
+                when.caption(timestamp.isoformat())
+    with integrity:
+        st.markdown("### Store health")
+        if errors:
+            st.error(f"{len(errors)} integrity issue(s)")
+            with st.expander("Integrity issues"):
+                for error in errors:
+                    st.write(error)
+        else:
+            st.success("All canonical stores passed integrity checks.")
+        with st.expander("Record totals"):
+            st.write(f"Events: **{len(events)}**")
+            st.write(f"Experience records: **{len(experiences)}**")
+            st.write(f"Knowledge records: **{len(knowledge)}**")
 
 
 def _render_inbox(root: Path) -> None:
+    _render_page_heading("Inbox", "Knowledge source intake")
     uploaded = st.file_uploader(
         "Upload files",
         accept_multiple_files=True,
@@ -188,7 +282,7 @@ def _render_inbox(root: Path) -> None:
             "xlsx",
         ],
     )
-    if uploaded and st.button("Save uploads"):
+    if uploaded and st.button("Save uploads", icon=":material/upload_file:", type="primary"):
         inbox = root / "inbox"
         inbox.mkdir(parents=True, exist_ok=True)
         for file in uploaded:
@@ -196,7 +290,9 @@ def _render_inbox(root: Path) -> None:
             target.write_bytes(file.getvalue())
         _flash(f"Saved {len(uploaded)} upload{'s' if len(uploaded) != 1 else ''} to inbox.")
     actions = st.columns([1, 1, 4])
-    if actions[0].button("Process Inbox", type="primary"):
+    if actions[0].button(
+        "Process Inbox", type="primary", icon=":material/play_arrow:", use_container_width=True
+    ):
         results = process_inbox(
             root,
             provenance=Provenance(
@@ -206,7 +302,7 @@ def _render_inbox(root: Path) -> None:
             ),
         )
         _flash(f"Processed {len(results)} inbox file{'s' if len(results) != 1 else ''}.")
-    if actions[1].button("Retry Processing"):
+    if actions[1].button("Retry Processing", icon=":material/refresh:", use_container_width=True):
         results = process_inbox(
             root,
             retry=True,
@@ -234,6 +330,7 @@ def _render_knowledge(
     knowledge: list[StoredKnowledge],
     current_items: list[StoredKnowledge],
 ) -> None:
+    _render_page_heading("Knowledge", "External sources with provenance")
     controls = st.columns([2, 2, 3])
     status = controls[0].selectbox(
         "Status", ["All", *[item.value for item in KnowledgeStatus]], key="knowledge-status"
@@ -252,6 +349,7 @@ def _render_knowledge(
     current_ids = {item.id for item in current_items}
     for item in reversed(filtered):
         with st.expander(f"{item.id} | {item.status.value.title()} | {item.source_filename}"):
+            st.badge("Knowledge", icon=":material/menu_book:", color="blue")
             st.write(item.summary or "No digest recorded.")
             if item.key_facts:
                 st.markdown("**Key Facts / Claims**")
@@ -283,17 +381,41 @@ def _render_knowledge(
             if item.id in current_ids:
                 actions = st.columns([1, 1, 1, 5])
                 if item.status == KnowledgeStatus.proposed and actions[0].button(
-                    "Confirm", key=f"knowledge-confirm-{item.id}", type="primary"
+                    "Confirm",
+                    key=f"knowledge-confirm-{item.id}",
+                    type="primary",
+                    icon=":material/check:",
+                    use_container_width=True,
                 ):
                     _apply_knowledge_review(item.id, "confirm", root)
-                if item.status in {KnowledgeStatus.proposed, KnowledgeStatus.confirmed} and actions[
-                    1
-                ].button("Invalidate", key=f"knowledge-invalidate-{item.id}"):
-                    _apply_knowledge_review(item.id, "invalidate", root)
-                if item.status in {KnowledgeStatus.active, KnowledgeStatus.confirmed} and actions[
-                    2
-                ].button("Retire", key=f"knowledge-retire-{item.id}"):
-                    _apply_knowledge_review(item.id, "retire", root)
+                if item.status in {KnowledgeStatus.proposed, KnowledgeStatus.confirmed}:
+                    with actions[1].popover(
+                        "Invalidate",
+                        icon=":material/block:",
+                        use_container_width=True,
+                        key=f"knowledge-invalidate-popover-{item.id}",
+                    ):
+                        st.caption("This appends an invalidation record. History is retained.")
+                        if st.button(
+                            "Confirm invalidation",
+                            key=f"knowledge-invalidate-{item.id}",
+                            type="primary",
+                        ):
+                            _apply_knowledge_review(item.id, "invalidate", root)
+                if item.status in {KnowledgeStatus.active, KnowledgeStatus.confirmed}:
+                    with actions[2].popover(
+                        "Retire",
+                        icon=":material/archive:",
+                        use_container_width=True,
+                        key=f"knowledge-retire-popover-{item.id}",
+                    ):
+                        st.caption("This appends a retired lineage head. History is retained.")
+                        if st.button(
+                            "Confirm retirement",
+                            key=f"knowledge-retire-{item.id}",
+                            type="primary",
+                        ):
+                            _apply_knowledge_review(item.id, "retire", root)
 
 
 def _render_review_queue(
@@ -301,6 +423,7 @@ def _render_review_queue(
     pending: list[StoredExperience],
     events_by_id: dict[str, StoredEvent],
 ) -> None:
+    _render_page_heading("Review Queue", f"{len(pending)} unresolved")
     st.caption(f"{len(pending)} unresolved Experience{'s' if len(pending) != 1 else ''}")
     if not pending:
         st.success("Review queue is clear.")
@@ -310,7 +433,8 @@ def _render_review_queue(
         with st.container(border=True):
             heading, state = st.columns([4, 1])
             heading.subheader(experience.id)
-            state.markdown(f"**{experience.status.value.title()}**")
+            state.badge(experience.status.value.title(), color="orange")
+            st.badge("Grounded Experience", icon=":material/verified:", color="violet")
             st.write(experience.lesson)
             context = st.columns(4)
             context[0].caption("PROJECT")
@@ -328,16 +452,31 @@ def _render_review_queue(
                 st.write(experience.goal or "Not recorded")
                 _render_evidence(experience, events_by_id)
             actions = st.columns([1, 1, 4])
-            if actions[0].button("Confirm", key=f"confirm-{experience.id}", type="primary"):
+            if actions[0].button(
+                "Confirm",
+                key=f"confirm-{experience.id}",
+                type="primary",
+                icon=":material/check:",
+                use_container_width=True,
+            ):
                 _apply_review(experience.id, "confirm", root)
-            if actions[1].button("Reject", key=f"reject-{experience.id}"):
-                _apply_review(experience.id, "invalidate", root)
+            with actions[1].popover(
+                "Reject",
+                icon=":material/block:",
+                use_container_width=True,
+                key=f"reject-popover-{experience.id}",
+            ):
+                st.caption("This appends an invalidation record. Evidence remains available.")
+                if st.button("Confirm rejection", key=f"reject-{experience.id}", type="primary"):
+                    _apply_review(experience.id, "invalidate", root)
             with st.expander("Edit and confirm"):
                 with st.form(f"edit-{experience.id}"):
                     situation = st.text_area("Situation", experience.situation)
                     goal = st.text_area("Goal", experience.goal)
                     lesson = st.text_area("Lesson", experience.lesson, height=140)
-                    if st.form_submit_button("Save and confirm", type="primary"):
+                    if st.form_submit_button(
+                        "Save and confirm", type="primary", icon=":material/save:"
+                    ):
                         _apply_review(
                             experience.id,
                             "edit_confirm",
@@ -354,6 +493,7 @@ def _render_experiences(
     current: list[StoredExperience],
     events_by_id: dict[str, StoredEvent],
 ) -> None:
+    _render_page_heading("Experiences", "Grounded actions and outcomes")
     controls = st.columns([2, 2, 3])
     status = controls[0].selectbox(
         "Status", ["All", *[item.value for item in ExperienceStatus]], key="experience-status"
@@ -383,6 +523,9 @@ def _render_experiences(
     for experience in reversed(filtered):
         label = "External Project Experience" if experience.external_project else "Internal"
         with st.expander(f"{experience.id} | {experience.status.value.title()} | {label}"):
+            st.badge("Grounded Experience", icon=":material/verified:", color="violet")
+            if experience.external_project:
+                st.badge("External Project Experience", color="orange")
             st.write(experience.lesson)
             details = st.columns(3)
             details[0].write(f"**Project:** {experience.project}")
@@ -403,16 +546,25 @@ def _render_experiences(
                         "previous_hash": experience.previous_hash,
                     }
                 )
-            if (
-                experience.id in current_ids
-                and experience.status
-                in {ExperienceStatus.active, ExperienceStatus.confirmed, ExperienceStatus.refined}
-                and st.button("Retire", key=f"retire-{experience.id}")
-            ):
-                _apply_review(experience.id, "retire", root)
+            if experience.id in current_ids and experience.status in {
+                ExperienceStatus.active,
+                ExperienceStatus.confirmed,
+                ExperienceStatus.refined,
+            }:
+                with st.popover(
+                    "Retire Experience",
+                    icon=":material/archive:",
+                    key=f"retire-popover-{experience.id}",
+                ):
+                    st.caption("This appends a retired lineage head. History is retained.")
+                    if st.button(
+                        "Confirm retirement", key=f"retire-{experience.id}", type="primary"
+                    ):
+                        _apply_review(experience.id, "retire", root)
 
 
 def _render_sessions(root: Path, events: list[StoredEvent]) -> None:
+    _render_page_heading("Sessions / Events", "Human-readable episode timeline")
     grouped: dict[str, list[StoredEvent]] = defaultdict(list)
     for event in events:
         grouped[event.session_id].append(event)
@@ -454,20 +606,157 @@ def render_dashboard(root: Path) -> None:
     st.markdown(
         """
         <style>
-        :root { --review-teal: #16766f; --review-ink: #202a2e; --review-amber: #b86b12; }
-        .stApp { color: var(--review-ink); }
-        h1, h2, h3 { letter-spacing: 0 !important; }
-        div[data-testid="stMetric"] {
-            border-top: 3px solid var(--review-teal);
-            padding-top: 0.65rem;
+        /* Hallmark | designed-as-app | design system: DESIGN.md | modern-minimal */
+        :root {
+            --eb-canvas: #f4f6fb;
+            --eb-surface: #ffffff;
+            --eb-header: #20232d;
+            --eb-text: #171a21;
+            --eb-secondary: #667085;
+            --eb-muted: #98a2b3;
+            --eb-border: #e1e5ec;
+            --eb-violet: #716fe5;
+            --eb-violet-soft: #eeedff;
+            --eb-blue: #4d7fc7;
+            --eb-blue-soft: #eaf1fb;
+            --eb-warm: #c9872f;
+            --eb-warm-soft: #fff3e2;
+            --eb-success: #3f8f78;
+            --eb-danger: #c85b63;
+            --eb-focus: #514fb1;
+            --eb-radius: 8px;
         }
-        div[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 6px; }
+        html, body { overflow-x: clip; }
+        .stApp {
+            background: var(--eb-canvas);
+            color: var(--eb-text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                "Segoe UI", sans-serif;
+        }
+        [data-testid="stHeader"], [data-testid="stToolbar"],
+        [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
+            display: none;
+        }
+        .block-container {
+            max-width: 1480px;
+            padding-top: 1.25rem;
+            padding-bottom: 3rem;
+        }
+        h1, h2, h3, p { letter-spacing: 0 !important; }
+        h2 { font-size: 1.55rem !important; margin-bottom: 0.5rem !important; }
+        h3 { font-size: 1.05rem !important; margin-top: 1.1rem !important; }
+        .eb-header {
+            align-items: center;
+            background: var(--eb-header);
+            border: 1px solid #2f3440;
+            border-radius: var(--eb-radius);
+            color: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            min-height: 78px;
+            padding: 1rem 1.25rem;
+        }
+        .eb-brand { font-size: 1.3rem; font-weight: 700; }
+        .eb-brand-rule {
+            background: var(--eb-violet);
+            display: inline-block;
+            height: 22px;
+            margin-right: 12px;
+            vertical-align: -4px;
+            width: 4px;
+        }
+        .eb-subtitle { color: #bac1cf; font-size: 0.82rem; margin-top: 0.2rem; }
+        .eb-meta { color: #d8dce5; font-size: 0.78rem; text-align: right; }
+        div[data-testid="stMetric"] {
+            background: var(--eb-surface);
+            border: 1px solid var(--eb-border);
+            border-radius: var(--eb-radius);
+            min-height: 116px;
+            padding: 0.9rem 1rem;
+        }
+        div[data-testid="stMetric"] label { color: var(--eb-secondary); }
+        div[data-testid="stMetricValue"] { color: var(--eb-text); font-size: 1.55rem; }
+        div[data-baseweb="tab-list"] {
+            background: var(--eb-surface);
+            border: 1px solid var(--eb-border);
+            border-radius: var(--eb-radius);
+            gap: 0.2rem;
+            padding: 0.3rem;
+        }
+        button[data-baseweb="tab"] {
+            border-radius: 6px;
+            min-height: 42px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            background: var(--eb-violet-soft);
+            color: var(--eb-focus);
+        }
+        div[data-baseweb="tab-highlight"] { background-color: var(--eb-violet); }
+        button[data-baseweb="tab"][aria-selected="true"] p { color: var(--eb-focus); }
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background: var(--eb-surface);
+            border-color: var(--eb-border) !important;
+            border-radius: var(--eb-radius);
+        }
+        div[data-testid="stMetric"] {
+            box-shadow: 0 1px 2px rgba(23, 26, 33, 0.04);
+        }
+        [data-testid="stExpander"] {
+            background: var(--eb-surface);
+            border-color: var(--eb-border);
+            border-radius: var(--eb-radius);
+        }
+        .stButton > button, [data-testid="stPopover"] > button,
+        [data-testid="stFormSubmitButton"] > button {
+            border-radius: 6px;
+            min-height: 40px;
+        }
+        .stButton > button[kind="primary"],
+        [data-testid="stFormSubmitButton"] > button[kind="primary"] {
+            background: var(--eb-violet);
+            border-color: var(--eb-violet);
+            color: #ffffff;
+        }
+        .stButton > button:focus-visible, [data-testid="stPopover"] > button:focus-visible,
+        [data-testid="stFormSubmitButton"] > button:focus-visible,
+        button[data-baseweb="tab"]:focus-visible {
+            outline: 3px solid var(--eb-focus);
+            outline-offset: 2px;
+        }
+        [data-testid="stFileUploaderDropzone"] {
+            background: var(--eb-surface);
+            border-color: var(--eb-border);
+            border-radius: var(--eb-radius);
+        }
+        [data-testid="stDataFrame"] { border-radius: var(--eb-radius); overflow: hidden; }
+        code { overflow-wrap: anywhere; }
+        @media (max-width: 768px) {
+            .block-container { padding-left: 0.8rem; padding-right: 0.8rem; }
+            .eb-header { align-items: flex-start; flex-direction: column; gap: 0.6rem; }
+            .eb-meta { text-align: left; }
+            div[data-baseweb="tab-list"] { overflow-x: auto; }
+            button[data-baseweb="tab"] { white-space: nowrap; }
+        }
         </style>
         """,
         unsafe_allow_html=True,
     )
-    st.title("Experience Brain")
-    st.caption("Owner review ledger")
+    store_name = html.escape(root.name or str(root))
+    st.markdown(
+        f"""
+        <div class="eb-header">
+          <div>
+            <div class="eb-brand"><span class="eb-brand-rule"></span>Experience Brain</div>
+            <div class="eb-subtitle">Local owner workspace</div>
+          </div>
+          <div class="eb-meta">{SCHEMA_VERSION}<br>Store: {store_name}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     if message := st.session_state.pop("review_flash", None):
         st.success(message)
     events = read_events(root)
@@ -477,15 +766,27 @@ def render_dashboard(root: Path) -> None:
     current_knowledge_items = current_knowledge(root)
     pending = pending_review_experiences(root)
     events_by_id = {event.id: event for event in events}
+    tab_labels = [
+        "Overview",
+        f"Review Queue ({len(pending)})",
+        "Inbox",
+        "Knowledge",
+        "Experiences",
+        "Sessions / Events",
+    ]
+    view_defaults = {
+        "overview": tab_labels[0],
+        "review": tab_labels[1],
+        "inbox": tab_labels[2],
+        "knowledge": tab_labels[3],
+        "experiences": tab_labels[4],
+        "sessions": tab_labels[5],
+    }
+    requested_view = st.query_params.get("view", "overview").strip().lower()
+    default_view = view_defaults.get(requested_view, tab_labels[0])
     tab_overview, tab_review, tab_inbox, tab_knowledge, tab_experiences, tab_sessions = st.tabs(
-        [
-            "Overview",
-            f"Review Queue ({len(pending)})",
-            "Inbox",
-            "Knowledge",
-            "Experiences",
-            "Sessions / Events",
-        ]
+        tab_labels,
+        default=default_view,
     )
     with tab_overview:
         _render_overview(
