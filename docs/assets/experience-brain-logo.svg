@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="156" viewBox="0 0 760 156" role="img" aria-labelledby="title desc">
+  <title id="title">Experience Brain</title>
+  <desc id="desc">Four connected evidence nodes beside the Experience Brain wordmark.</desc>
+  <rect width="760" height="156" rx="8" fill="#f8fafc"/>
+  <g transform="translate(26 26)">
+    <rect width="104" height="104" rx="8" fill="#20232d"/>
+    <path d="M27 33h31c13 0 23 9 23 21s-10 21-23 21H43" fill="none" stroke="#8c8aec" stroke-width="8" stroke-linecap="round"/>
+    <path d="M43 75h30c9 0 16 6 16 15" fill="none" stroke="#6f9bd8" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="27" cy="33" r="6" fill="#f4b86a"/>
+    <circle cx="81" cy="54" r="6" fill="#f8fafc"/>
+    <circle cx="43" cy="75" r="6" fill="#52a085"/>
+    <circle cx="89" cy="90" r="6" fill="#f4b86a"/>
+  </g>
+  <text x="158" y="73" fill="#20232d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Experience Brain</text>
+  <text x="160" y="105" fill="#667085" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Grounded cross-session experience for AI agents</text>
+</svg>

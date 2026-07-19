@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Experience Brain architecture</title>
+  <desc id="desc">Agents connect through MCP to the experience lifecycle, append-only stores, and owner review surfaces.</desc>
+  <rect width="1200" height="560" rx="8" fill="#f4f6fb"/>
+  <style>
+    .title{font:700 25px Inter,Segoe UI,Arial,sans-serif;fill:#171a21}.label{font:600 17px Inter,Segoe UI,Arial,sans-serif;fill:#20232d}.small{font:400 14px Inter,Segoe UI,Arial,sans-serif;fill:#667085}.mono{font:500 14px Consolas,monospace;fill:#344054}.line{stroke:#98a2b3;stroke-width:2;fill:none}.box{fill:#fff;stroke:#dfe3eb;stroke-width:2}.accent{fill:#eeedff;stroke:#716fe5;stroke-width:2}.knowledge{fill:#eaf1fb;stroke:#4d7fc7;stroke-width:2}.experience{fill:#fff3e2;stroke:#c9872f;stroke-width:2}
+  </style>
+  <text x="48" y="52" class="title">Agent-agnostic, local-first architecture</text>
+  <rect x="48" y="92" width="230" height="100" rx="8" class="box"/>
+  <text x="76" y="133" class="label">Codex CLI</text><text x="76" y="160" class="small">or another AI agent</text>
+  <path d="M278 142h72" class="line"/><path d="M342 135l12 7-12 7" fill="#98a2b3"/>
+  <rect x="354" y="92" width="190" height="100" rx="8" class="accent"/>
+  <text x="395" y="133" class="label">MCP server</text><text x="384" y="160" class="small">primary integration bridge</text>
+  <path d="M544 142h72" class="line"/><path d="M608 135l12 7-12 7" fill="#98a2b3"/>
+  <rect x="620" y="78" width="532" height="128" rx="8" class="box"/>
+  <text x="648" y="111" class="small">BRAIN-INSPIRED EXPERIENCE LIFECYCLE</text>
+  <text x="648" y="157" class="label">Capture</text><text x="759" y="157" class="label">Consolidate</text><text x="900" y="157" class="label">Retrieve</text><text x="1014" y="157" class="label">Review / Update</text>
+  <path d="M718 151h28m99 0h42m78 0h35" class="line"/>
+  <path d="M752 144l12 7-12 7M893 144l12 7-12 7M1006 144l12 7-12 7" fill="#98a2b3"/>
+  <path d="M886 206v58" class="line"/><path d="M879 256l7 12 7-12" fill="#98a2b3"/>
+  <rect x="48" y="268" width="1104" height="146" rx="8" class="box"/>
+  <text x="76" y="303" class="small">CANONICAL APPEND-ONLY SOURCE OF TRUTH</text>
+  <rect x="76" y="326" width="300" height="62" rx="6" class="accent"/><text x="110" y="363" class="mono">data/events.jsonl</text>
+  <rect x="450" y="326" width="300" height="62" rx="6" class="experience"/><text x="471" y="363" class="mono">data/experiences.jsonl</text>
+  <rect x="824" y="326" width="300" height="62" rx="6" class="knowledge"/><text x="851" y="363" class="mono">data/knowledge.jsonl</text>
+  <path d="M600 414v56" class="line"/><path d="M593 462l7 12 7-12" fill="#98a2b3"/>
+  <rect x="242" y="474" width="310" height="58" rx="8" class="box"/><text x="294" y="510" class="label">Markdown review reports</text>
+  <rect x="648" y="474" width="310" height="58" rx="8" class="box"/><text x="700" y="510" class="label">Local owner Dashboard</text>
+</svg>

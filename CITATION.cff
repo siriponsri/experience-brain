@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use Experience Brain, cite the software and the exact version or commit."
+type: software
+title: "Experience Brain"
+abstract: >-
+  An open-source, agent-agnostic, brain-inspired experience lifecycle for grounded,
+  reviewable cross-session AI agent experience.
+authors:
+  - family-names: "Sri"
+    given-names: "Siripon"
+repository-code: "https://github.com/siriponsri/experience-brain"
+url: "https://github.com/siriponsri/experience-brain"
+license: Apache-2.0
+version: 0.3.1
+date-released: 2026-07-19
+keywords:
+  - AI agents
+  - experience memory
+  - cross-session learning
+  - MCP
+  - provenance

@@ -331,3 +331,30 @@ experience dashboard
 ถ้าไฟล์ซ้ำ ระบบจะตรวจด้วย content hash และไม่สร้าง Knowledge ซ้ำแบบเงียบ ๆ
 ถ้าไฟล์ยังไม่รองรับ อ่านไม่ได้ สแกนเป็นรูปภาพ เข้ารหัส หรือเป็น audio/video
 ระบบจะแสดงสถานะเช่น `unsupported`, `needs_extractor`, หรือ `error`
+
+## 17. Workflow ประจำวันแบบไม่ต้องเขียนโค้ด
+
+การใช้งานปัจจุบันควรอธิบายอย่างตรงไปตรงมาว่า:
+
+> ตั้งค่าครั้งแรกแบบ low-code และใช้งานประจำวันสำหรับ review กับนำเข้า Knowledge
+> ผ่าน Dashboard ได้โดยไม่ต้องเขียนโค้ด
+
+ขั้นตอนที่แนะนำ:
+
+1. ติดตั้ง Experience Brain และตั้งค่า MCP หนึ่งครั้ง
+2. เปิด Dashboard ด้วย `experience dashboard`
+3. Upload และ Process ไฟล์ในแท็บ Inbox
+4. ตรวจ Knowledge และยืนยัน provenance ของแหล่งข้อมูล
+5. ตรวจ Candidate Experience ใน Review Queue
+6. เปิดดู evidence และ lineage เมื่อต้องการตรวจสอบที่มา
+7. ให้ Agent ค้นคืน Knowledge และ Experience ใน session ถัดไป
+
+งานประจำวันไม่ควรต้องแก้ JSONL, เขียน Python, จำ record ID ล่วงหน้า หรือใช้ Git
+Dashboard เป็น local single-owner interface ในรุ่นนี้ และยังไม่ใช่ cloud service หรือ
+one-click installation
+
+คู่มือเพิ่มเติม:
+
+- `docs/DASHBOARD_GUIDE.md`
+- `docs/MCP_SETUP.md`
+- `docs/CLI_REFERENCE.md`

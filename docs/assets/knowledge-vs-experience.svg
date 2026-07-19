@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-labelledby="title desc">
+  <title id="title">Knowledge and Experience are distinct</title>
+  <desc id="desc">Knowledge comes from external sources; Experience comes from grounded agent action and observed outcomes.</desc>
+  <rect width="1200" height="440" rx="8" fill="#f4f6fb"/>
+  <style>.title{font:700 25px Inter,Segoe UI,Arial,sans-serif;fill:#171a21}.head{font:700 23px Inter,Segoe UI,Arial,sans-serif;fill:#20232d}.body{font:400 16px Inter,Segoe UI,Arial,sans-serif;fill:#475467}.label{font:600 14px Inter,Segoe UI,Arial,sans-serif;fill:#344054}.box{fill:#fff;stroke:#dfe3eb;stroke-width:2}.k{fill:#eaf1fb;stroke:#4d7fc7;stroke-width:2}.e{fill:#fff3e2;stroke:#c9872f;stroke-width:2}.line{stroke:#98a2b3;stroke-width:2}</style>
+  <text x="48" y="52" class="title">Two evidence classes, never silently merged</text>
+  <rect x="48" y="84" width="520" height="300" rx="8" class="box"/>
+  <rect x="72" y="108" width="472" height="70" rx="6" class="k"/>
+  <text x="100" y="150" class="head">Knowledge</text>
+  <text x="80" y="218" class="body">What the agent has read or received</text>
+  <text x="80" y="254" class="label">External file or source</text><line x1="254" y1="249" x2="324" y2="249" class="line"/><text x="340" y="254" class="label">Digest + provenance</text>
+  <text x="80" y="301" class="body">Preserves filename, content hash, location,</text><text x="80" y="327" class="body">extractor metadata, trust, and status.</text>
+  <rect x="632" y="84" width="520" height="300" rx="8" class="box"/>
+  <rect x="656" y="108" width="472" height="70" rx="6" class="e"/>
+  <text x="684" y="150" class="head">Grounded Experience</text>
+  <text x="664" y="218" class="body">What the agent has actually done and learned</text>
+  <text x="664" y="254" class="label">Action + observed outcome</text><line x1="870" y1="249" x2="922" y2="249" class="line"/><text x="938" y="254" class="label">Reviewable lesson</text>
+  <text x="664" y="301" class="body">Must cite real Event IDs and retain outcome,</text><text x="664" y="327" class="body">feedback, confidence, lineage, and status.</text>
+  <rect x="381" y="399" width="438" height="28" rx="6" fill="#20232d"/><text x="435" y="419" fill="#f8fafc" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="600">Knowledge never becomes Experience automatically</text>
+</svg>

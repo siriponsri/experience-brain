@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-labelledby="title desc">
+  <title id="title">Cross-session experience lifecycle</title>
+  <desc id="desc">A grounded episode in one session becomes reviewed experience retrieved in a later session.</desc>
+  <rect width="1200" height="470" rx="8" fill="#f4f6fb"/>
+  <style>.title{font:700 25px Inter,Segoe UI,Arial,sans-serif;fill:#171a21}.head{font:700 18px Inter,Segoe UI,Arial,sans-serif;fill:#20232d}.body{font:400 14px Inter,Segoe UI,Arial,sans-serif;fill:#667085}.step{font:600 13px Inter,Segoe UI,Arial,sans-serif;fill:#514fb1}.box{fill:#fff;stroke:#dfe3eb;stroke-width:2}.accent{fill:#eeedff;stroke:#716fe5;stroke-width:2}.line{stroke:#98a2b3;stroke-width:2;fill:none}</style>
+  <text x="48" y="52" class="title">Grounded evidence moves forward across sessions</text>
+  <text x="48" y="94" class="step">SESSION A</text>
+  <rect x="48" y="112" width="250" height="116" rx="8" class="box"/><text x="72" y="150" class="head">1. Capture</text><text x="72" y="180" class="body">Actions, tools, decisions,</text><text x="72" y="202" class="body">feedback, and outcomes</text>
+  <path d="M298 170h55" class="line"/><path d="M345 163l12 7-12 7" fill="#98a2b3"/>
+  <rect x="357" y="112" width="250" height="116" rx="8" class="accent"/><text x="381" y="150" class="head">2. Consolidate</text><text x="381" y="180" class="body">Create a candidate lesson</text><text x="381" y="202" class="body">with evidence Event IDs</text>
+  <path d="M607 170h55" class="line"/><path d="M654 163l12 7-12 7" fill="#98a2b3"/>
+  <rect x="666" y="112" width="250" height="116" rx="8" class="box"/><text x="690" y="150" class="head">3. Review / Update</text><text x="690" y="180" class="body">Confirm, edit, supersede,</text><text x="690" y="202" class="body">invalidate, or retire</text>
+  <path d="M916 170h84v92H186v58" class="line"/><path d="M179 312l7 12 7-12" fill="#98a2b3"/>
+  <text x="48" y="315" class="step">LATER SESSION</text>
+  <rect x="48" y="333" width="250" height="100" rx="8" class="accent"/><text x="72" y="371" class="head">4. Retrieve</text><text x="72" y="401" class="body">Situation-aware briefing</text>
+  <path d="M298 383h55" class="line"/><path d="M345 376l12 7-12 7" fill="#98a2b3"/>
+  <rect x="357" y="333" width="250" height="100" rx="8" class="box"/><text x="381" y="371" class="head">5. Apply selectively</text><text x="381" y="401" class="body">Owner and project rules stay primary</text>
+  <path d="M607 383h55" class="line"/><path d="M654 376l12 7-12 7" fill="#98a2b3"/>
+  <rect x="666" y="333" width="250" height="100" rx="8" class="box"/><text x="690" y="371" class="head">6. Record outcome</text><text x="690" y="401" class="body">Usage and feedback become evidence</text>
+</svg>
