@@ -1,3 +1,3 @@
-"""Experience Brain lean POC."""
+"""Grounded cross-session experience lifecycle for AI agents."""
 
-__version__ = "0.2.3"
+__version__ = "0.3.1"

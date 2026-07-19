@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=69"]
+requires = ["setuptools>=69", "wheel>=0.43"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "experience-brain"
-version = "0.2.3"
-description = "Lean Agent-CLI-first Experience Brain POC with live MCP workflow"
+version = "0.3.1"
+description = "Grounded cross-session experience lifecycle for AI agents"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.11,<3.12"

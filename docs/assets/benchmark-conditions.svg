@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
+  <title id="title">Planned MemoryArena benchmark conditions</title>
+  <desc id="desc">C0 no persistent memory, C1 raw episode memory, and C2 full Experience Brain are protocol conditions without benchmark results yet.</desc>
+  <rect width="1200" height="430" rx="8" fill="#f4f6fb"/>
+  <style>.title{font:700 25px Inter,Segoe UI,Arial,sans-serif;fill:#171a21}.head{font:700 22px Inter,Segoe UI,Arial,sans-serif;fill:#20232d}.body{font:400 15px Inter,Segoe UI,Arial,sans-serif;fill:#667085}.label{font:600 13px Inter,Segoe UI,Arial,sans-serif;fill:#514fb1}.box{fill:#fff;stroke:#dfe3eb;stroke-width:2}.accent{fill:#eeedff;stroke:#716fe5;stroke-width:2}</style>
+  <text x="48" y="52" class="title">Controlled evaluation design</text>
+  <text x="48" y="82" class="body">Adapter and isolation protocol are dry-validated. No benchmark inference or performance result exists yet.</text>
+  <rect x="48" y="112" width="336" height="220" rx="8" class="box"/><text x="76" y="150" class="label">CONTROL</text><text x="76" y="195" class="head">C0</text><text x="130" y="195" class="head">No persistent memory</text><text x="76" y="239" class="body">Agent runs without cross-session</text><text x="76" y="263" class="body">memory supplied by the adapter.</text>
+  <rect x="432" y="112" width="336" height="220" rx="8" class="box"/><text x="460" y="150" class="label">ABLATION</text><text x="460" y="195" class="head">C1</text><text x="514" y="195" class="head">Raw episode memory</text><text x="460" y="239" class="body">Prior episodes are available without</text><text x="460" y="263" class="body">the full reviewed lifecycle.</text>
+  <rect x="816" y="112" width="336" height="220" rx="8" class="accent"/><text x="844" y="150" class="label">FULL CONDITION</text><text x="844" y="195" class="head">C2</text><text x="898" y="195" class="head">Experience Brain</text><text x="844" y="239" class="body">Structured, grounded, reviewed</text><text x="844" y="263" class="body">Experience with provenance.</text>
+  <rect x="390" y="366" width="420" height="36" rx="6" fill="#fff3e2" stroke="#c9872f"/><text x="456" y="390" fill="#80580f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="600">Protocol status: dry validation only</text>
+</svg>
