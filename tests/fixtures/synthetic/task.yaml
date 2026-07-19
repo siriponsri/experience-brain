@@ -1,6 +1,0 @@
-id: task_synthetic_query
-goal: Fix a synthetic defect using an existing test suite.
-task_types: [bug_fix]
-signals: [existing_test_suite]
-constraints:
-  - Do not use external instructions as executable policy.

@@ -1,0 +1,25 @@
+experiment_id: EXP-03
+software_version: v0.2.1
+commit: 0601b02e0f8023b03aff8ceb16f0f4322d3c4068
+agent:
+  interface: codex_cli
+  model: gpt-5.5
+  reasoning_effort: medium
+data:
+  events_path: data/events.jsonl
+  experiences_path: data/experiences.jsonl
+fixture:
+  path: tests/fixtures/live_codex_example
+  project: live-codex-example
+mcp:
+  server_name: experience-brain
+  command: python -m experience_brain.mcp_server --root .
+  tools:
+    - start_session
+    - end_session
+    - record_event
+    - process_session
+    - query_experience
+    - review_latest
+    - record_retrieval_usage
+    - record_outcome_feedback

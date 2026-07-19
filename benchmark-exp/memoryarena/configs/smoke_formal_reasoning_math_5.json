@@ -1,0 +1,51 @@
+{
+  "experiment_id": "EXP-04",
+  "description": "Frozen deterministic 5-task smoke subset for MemoryArena formal_reasoning_math.",
+  "upstream": {
+    "memoryarena_commit": "6cd9de14b71915e39ac742a20dc33785e14b6aab",
+    "official_project": "https://memoryarena.github.io/",
+    "official_code": "https://github.com/ZexueHe/MemoryArena"
+  },
+  "dataset": {
+    "name": "memoryarena",
+    "source": "https://huggingface.co/datasets/ZexueHe/memoryarena",
+    "revision": "da1a37c8b19280e18627ca01cf368195a5e1d92e",
+    "subset": "formal_reasoning_math",
+    "split": "test",
+    "license": "CC-BY-4.0; visible on Hugging Face dataset page HTML but not in API cardData"
+  },
+  "smoke_subset": {
+    "selection_method": "first five dataset rows at pinned revision, preserving official order",
+    "selected_task_ids": [0, 1, 2, 3, 4],
+    "paper_names": [
+      "2503.19064",
+      "2510.16976",
+      "2312.05134_part_2",
+      "2408.12186",
+      "2410.01101"
+    ]
+  },
+  "conditions": ["C0", "C1", "C2"],
+  "run_ids": {
+    "C0": "EXP04-FRMATH-SMOKE-C0-RUN001",
+    "C1": "EXP04-FRMATH-SMOKE-C1-RUN001",
+    "C2": "EXP04-FRMATH-SMOKE-C2-RUN001"
+  },
+  "model": {
+    "name": "gpt-5-mini",
+    "version": null,
+    "reasoning_effort": "medium",
+    "temperature": 0.0,
+    "max_tokens": 8192
+  },
+  "memory": {
+    "top_k": 3,
+    "judge_result_in_memory": false,
+    "isolate_by_condition": true,
+    "isolate_by_task_group": true
+  },
+  "execution": {
+    "real_benchmark_inference_enabled": false,
+    "dry_run_only_until_owner_protocol_freeze": true
+  }
+}

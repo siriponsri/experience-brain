@@ -1,0 +1,50 @@
+{
+  "experiment_id": "EXP-04",
+  "software_version": "v0.2.1",
+  "memoryarena_commit": "6cd9de14b71915e39ac742a20dc33785e14b6aab",
+  "dataset_revision": "da1a37c8b19280e18627ca01cf368195a5e1d92e",
+  "selected_task_ids": [0, 1, 2, 3, 4],
+  "real_benchmark_inference_run": false,
+  "blockers": [
+    "OPENAI_API_KEY was not set.",
+    "OPENAI_BASE_URL was not set.",
+    "MemoryArena memory server on localhost:8000 was not reachable.",
+    "MemoryArena environment server on localhost:8001 was not reachable."
+  ],
+  "runs": [
+    {
+      "run_id": "EXP04-FRMATH-SMOKE-C0-RUN001",
+      "commit": "f5ff072d4fb66af67687778a43117b0bd923fc7f",
+      "started_at": "2026-07-18T14:44:46.9360465+07:00",
+      "ended_at": "2026-07-18T14:44:46.9360465+07:00",
+      "result": "dry_run_passed",
+      "notes": "C0 no-memory adapter path validated without persistent store."
+    },
+    {
+      "run_id": "EXP04-FRMATH-SMOKE-C1-RUN001",
+      "commit": "f5ff072d4fb66af67687778a43117b0bd923fc7f",
+      "started_at": "2026-07-18T14:44:46.9360465+07:00",
+      "ended_at": "2026-07-18T14:44:46.9360465+07:00",
+      "result": "dry_run_passed",
+      "notes": "C1 raw episode Events and lexical retrieval validated without Experience consolidation."
+    },
+    {
+      "run_id": "EXP04-FRMATH-SMOKE-C2-RUN001",
+      "commit": "f5ff072d4fb66af67687778a43117b0bd923fc7f",
+      "started_at": "2026-07-18T14:44:46.9360465+07:00",
+      "ended_at": "2026-07-18T14:44:46.9360465+07:00",
+      "result": "dry_run_passed",
+      "notes": "C2 automated Experience creation, retrieval, usage trace, and provenance checks validated."
+    }
+  ],
+  "checks": {
+    "official_code_audit": "passed",
+    "dataset_manifest": "passed",
+    "environment_manifest": "passed",
+    "leakage_checks": "passed",
+    "store_isolation_checks": "passed",
+    "adapter_tests": "passed",
+    "dry_smoke": "passed",
+    "real_smoke": "blocked"
+  }
+}

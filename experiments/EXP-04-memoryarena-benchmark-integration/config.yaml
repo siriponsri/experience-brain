@@ -1,0 +1,29 @@
+experiment_id: EXP-04
+software_version: v0.2.1
+commit: f5ff072d4fb66af67687778a43117b0bd923fc7f
+agent:
+  interface: codex_cli
+  model: gpt-5.5
+  reasoning_effort: medium
+data:
+  events_path: data/events.jsonl
+  experiences_path: data/experiences.jsonl
+benchmark:
+  name: MemoryArena
+  official_project: https://memoryarena.github.io/
+  official_code: https://github.com/ZexueHe/MemoryArena
+  memoryarena_commit: 6cd9de14b71915e39ac742a20dc33785e14b6aab
+  dataset_source: https://huggingface.co/datasets/ZexueHe/memoryarena
+  dataset_revision: da1a37c8b19280e18627ca01cf368195a5e1d92e
+  dataset_license: CC-BY-4.0
+  subset: formal_reasoning_math
+  selected_task_ids: [0, 1, 2, 3, 4]
+conditions:
+  - C0
+  - C1
+  - C2
+run_ids:
+  C0: EXP04-FRMATH-SMOKE-C0-RUN001
+  C1: EXP04-FRMATH-SMOKE-C1-RUN001
+  C2: EXP04-FRMATH-SMOKE-C2-RUN001
+real_benchmark_inference_run: false

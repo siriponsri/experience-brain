@@ -123,6 +123,37 @@ An experience should contain, when available:
 
 Never silently rewrite raw history. Corrections must be represented by new records that supersede, invalidate, refine, or retire earlier records.
 
+### `data/knowledge.jsonl`
+
+Append-only record of information extracted or digested from external files and
+sources.
+
+Knowledge should contain, when available:
+
+- title
+- summary or digest
+- key facts or claims
+- suggested applicability
+- project scope
+- tags or keywords
+- source filename
+- source content hash
+- source type and MIME type
+- source location such as page, sheet, section, or line range
+- extractor metadata
+- digesting Agent/model/runtime provenance
+- status
+- supersession or invalidation references
+
+Knowledge and Experience must remain semantically distinct:
+
+```text
+External source says X -> Knowledge
+Agent performs X and observes an outcome -> Experience
+```
+
+Do not automatically convert Knowledge into Experience.
+
 ## 7. Experience Lifecycle
 
 ### Capture

@@ -1,94 +1,180 @@
-# Experience Brain Lite
+# Experience Brain
 
-Deterministic, provenance-preserving procedural memory for the Lite phase. The canonical store is append-only JSONL events plus Markdown/YAML episodes and skills. It does not use vector search, knowledge graphs, background agents, multimodal memory, or external LLM calls.
+Experience Brain is a lean, open-source, agent-agnostic memory system for AI agents.
+It keeps Knowledge and Experience separate inside a brain-inspired experience lifecycle:
 
-## Quick start (Windows PowerShell)
+```text
+Capture -> Consolidate -> Retrieve -> Review / Update
+```
+
+The first implementation is Codex CLI-first. The core schema and MCP interface are
+kept neutral so other agent CLIs can connect later.
+
+## Canonical Stores
+
+Experience Brain uses three append-only JSONL files as the source of truth:
+
+```text
+data/events.jsonl
+data/experiences.jsonl
+data/knowledge.jsonl
+```
+
+Events record what happened. Experiences are lessons derived from grounded Agent
+actions and outcomes, and must cite real event IDs as evidence. Knowledge records
+what the system has read or been told from external sources, and must preserve
+source filename, content hash, extractor metadata, and provenance.
+
+The core mental model is:
+
+```text
+Knowledge = what the Agent has read
+Experience = what the Agent has done
+Rules = what the Owner or active project requires
+Working Context = what matters now
+```
+
+Raw history is not silently rewritten. Corrections are new records that supersede,
+invalidate, refine, or retire earlier records.
+
+## Owner Workflow
+
+The primary workflow is through an Agent CLI connected to the MCP server:
+
+```text
+Codex or another Agent CLI -> MCP -> Experience Brain
+```
+
+Primary owner commands are:
+
+```text
+process session
+query experience: <question>
+review latest
+```
+
+The fallback Python CLI is named `experience`:
 
 ```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements.lock
-.\.venv\Scripts\python -m pip install -e . --no-deps
-.\.venv\Scripts\brain ingest tests\fixtures\synthetic\events.jsonl --kind events
-.\.venv\Scripts\brain consolidate
-.\.venv\Scripts\brain retrieve --task tests\fixtures\synthetic\task.yaml
-.\.venv\Scripts\brain capsule --task tests\fixtures\synthetic\task.yaml --budget 1000
-.\.venv\Scripts\brain report
-.\.venv\Scripts\brain lint
+python -m pip install -e .[dev]
+experience status
+experience process-session
+experience query "How did we fix this before?"
+experience process-inbox
+experience query-knowledge "What did the uploaded guide say?"
+experience query-memory "What do we know and what have we done about this?"
+experience review-latest
+experience lint
 ```
 
-## Quick start (macOS/Linux)
+## Knowledge Inbox
 
-```bash
-python3.11 -m venv .venv
-.venv/bin/python -m pip install -r requirements.lock
-.venv/bin/python -m pip install -e . --no-deps
-.venv/bin/brain ingest tests/fixtures/synthetic/events.jsonl --kind events
-.venv/bin/brain consolidate
-.venv/bin/brain retrieve --task tests/fixtures/synthetic/task.yaml
-.venv/bin/brain capsule --task tests/fixtures/synthetic/task.yaml --budget 1000
-.venv/bin/brain report
-.venv/bin/brain lint
+The owner can place files in `inbox/` or upload them through the local dashboard:
+
+```text
+Drop file -> process inbox -> inspect Knowledge -> Agent can retrieve it later
 ```
 
-## Safety and lifecycle
+Supported initial file types are `.md`, `.txt`, `.json`, `.jsonl`, `.yaml`,
+`.yml`, `.csv`, common source-code text files, text-based `.pdf`, `.docx`, and
+`.xlsx`. Re-uploading unchanged content is detected by SHA-256 content hash and
+does not silently create duplicate Knowledge. Unsupported, unreadable, scanned,
+encrypted, image-only, audio, or video files are recorded with explicit statuses
+such as `unsupported`, `needs_extractor`, or `error`.
 
-- Events are append-only and linked by SHA-256 hashes.
-- Episodes and skills retain event/verifier provenance.
-- A skill becomes `verified` only after two independent successful episodes.
-- Converted external Markdown is always untrusted data and cannot supply a skill candidate.
-- Capsules contain only verified procedures and never exceed their configured token budget.
+Knowledge never becomes Experience automatically. External source says X creates
+Knowledge; only an Agent action plus observed outcome can create Experience.
 
-## C1 research-wiki condition
+## MCP Server
 
-C1 is selected in `brain.yaml` with `condition: c1` and a run-specific `run_id`. Its
-store is isolated at `wiki/runs/<run_id>/`; it never reads Lite events, episodes,
-skills, retrieval results, or capsules. Configure the frozen Prompt 01/02 files under
-`wiki.prompt_references`. C1 refuses to run when those repository-relative references
-are absent, so the original prompt text is never invented or changed per run.
-
-The C1 workflow uses explicit foreground commands:
+The MCP server name is `experience-brain`.
 
 ```powershell
-brain ingest source.md --kind source --metadata source.yaml
-brain maintain --manifest maintenance.yaml
-brain context --task task.yaml
-brain leakage --task frozen-deployment-task.yaml
-brain report
-brain lint
-brain reset --confirm-run-id <run-id>
+experience-brain-mcp
 ```
 
-Raw sources are immutable and content-hashed. Wiki pages and lessons are append-only
-version files with source, maintenance-operation, and frozen-prompt provenance.
-Maintenance manifests must report input/output tokens and wall time; the C1 report
-includes those tokens as background wiki-maintenance cost. Context is packed in stable
-wiki-index order under the same configured token budget and treats wiki material as
-untrusted evidence rather than instructions.
+EXP-03 MCP tools:
 
-## Benchmark harness
+- `start_session`
+- `end_session`
+- `record_event`
+- `process_session`
+- `query_experience`
+- `review_latest`
+- `record_retrieval_usage`
+- `record_outcome_feedback`
 
-The verifier-first harness connects C0, C1, and C2 through isolated workspaces.
-It requires an official external checkout lock, an exact runtime rate card, frozen
-prompt files, and canonical task manifests before execution.
+EXP-03.2 Knowledge tools:
+
+- `list_inbox_files`
+- `inspect_inbox_file`
+- `extract_inbox_file`
+- `process_inbox`
+- `save_knowledge_digest`
+- `query_knowledge`
+- `query_memory`
+
+Codex CLI can be wired to the local MCP server with:
 
 ```powershell
-brain benchmark preflight --manifest evaluations/manifests/smoke-v1.json
-brain benchmark smoke --manifest evaluations/manifests/smoke-v1.json --run-id smoke-001
-brain benchmark completeness --run-id smoke-001 --expected-attempts 6
-brain benchmark estimate --smoke-run-id smoke-001 --pilot-manifest evaluations/manifests/pilot-v1.json
+codex mcp add experience-brain -- python -m experience_brain.mcp_server --root .
 ```
 
-`brain benchmark run --stage pilot` additionally requires a `protocol-v1` tag and
-an approval YAML whose manifest, runtime, and cost-estimate hashes all match. Local
-checkouts, workspaces, run artifacts, and runtime configs are intentionally ignored
-by Git to avoid retaining benchmark solutions or secrets.
+Or add this server stanza to a local Codex config:
 
-## Verification
+```toml
+[mcp_servers.experience-brain]
+command = "python"
+args = ["-m", "experience_brain.mcp_server", "--root", "."]
+cwd = "."
+```
+
+Use GPT-5.5 with medium reasoning for normal POC work. Escalate reasoning only
+for complex debugging or architecture blockers, then record the escalation in
+provenance.
+
+## Dashboard
+
+The local single-owner dashboard uses Streamlit:
 
 ```powershell
-.\.venv\Scripts\python -m pytest --cov=experience_brain --cov-fail-under=90
-.\.venv\Scripts\ruff check .
-.\.venv\Scripts\ruff format --check .
-.\.venv\Scripts\mypy src tests
-.\.venv\Scripts\brain lint
+experience dashboard
 ```
+
+It is the primary low-code review interface. The Review Queue includes every
+unresolved candidate in the append-only Experience log, even when the newest
+session report has no candidates. The owner can inspect evidence and confirm,
+edit and confirm, reject, or retire Experiences without editing JSONL or
+remembering Experience IDs.
+
+The dashboard also includes Inbox and Knowledge views. The owner can upload files,
+process supported files, inspect duplicate or error status, confirm or invalidate
+Knowledge records, and view source provenance without editing JSONL.
+
+`review latest` remains a session-level report. It is not the pending review queue.
+
+Retrieval usage records distinguish the retrieval result (`match` / `no_match`),
+usage (`used` / `not_used` / `unavailable`), and task outcome
+(`success` / `failure` / `unknown`).
+
+## Development
+
+```powershell
+python -m pip install -e .[dev]
+python -m pytest
+ruff check .
+ruff format --check .
+mypy src tests
+experience --help
+```
+
+## Scope
+
+This POC intentionally does not include a benchmark harness, vector database,
+knowledge graph, cloud deployment, REST API, autonomous background agent, or
+multi-user service. Benchmark and paper work are deferred until the POC lifecycle
+works end to end.
+
+## License
+
+Apache License 2.0.

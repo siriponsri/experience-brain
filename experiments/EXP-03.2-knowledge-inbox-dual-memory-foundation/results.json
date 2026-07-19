@@ -1,0 +1,44 @@
+{
+  "experiment_id": "EXP-03.2",
+  "software_version": "v0.2.3",
+  "real_memoryarena_inference_run": false,
+  "runs": [
+    {
+      "run_id": "RUN-20260718203651858987",
+      "commit": "b6fb7e07ab7961f3fe7e56d78a8f490990571618",
+      "started_at": "2026-07-18T20:36:51.8589875+07:00",
+      "ended_at": "2026-07-18T20:42:27.0566470+07:00",
+      "result": "passed",
+      "notes": "Knowledge Inbox and dual-memory foundation passed isolated smoke tests, full pytest, Ruff, mypy, store lint, dashboard startup, and MCP startup/process_inbox validation."
+    },
+    {
+      "run_id": "RUN-20260719-EXP032-OWNER-LIVE",
+      "commit": "2e1f3d8570212721cca3b8d76f847fc1ddb6c4cc",
+      "started_at": "2026-07-19T09:02:00+07:00",
+      "ended_at": "2026-07-19T09:12:30+07:00",
+      "result": "passed",
+      "notes": "Owner-live Knowledge Inbox validation passed on the main store. One Markdown file in inbox/ created a source-provenanced Knowledge record; no Experience record was created from ingestion; CLI and in-process MCP retrieval returned the Knowledge in a later isolated context; unified retrieval separated Relevant Knowledge from Relevant Experience; unrelated query returned no match. A small .gitkeep inbox control-file bug was fixed, covered by regression test, and the accidental .gitkeep Knowledge record was invalidated append-only."
+    }
+  ],
+  "checks": {
+    "owner_live_validation": "passed: Markdown source processed through process-inbox on main store",
+    "owner_live_knowledge_provenance": "passed: source filename, SHA-256 hash, source type, line location, extractor metadata, and provenance preserved",
+    "owner_live_no_experience_auto_creation": "passed: data/experiences.jsonl unchanged",
+    "owner_live_mcp_retrieval": "passed: in-process MCP query_knowledge and query_memory returned expected separated results",
+    "owner_live_unrelated_query": "passed: unrelated clinical query returned no Knowledge or Experience match",
+    "inbox_control_files": "fixed: dotfiles such as .gitkeep are skipped; accidental .gitkeep Knowledge record invalidated append-only",
+    "knowledge_inbox_smoke": "passed: Markdown/TXT, JSON, XLSX, duplicate, unsupported binary",
+    "dashboard_inbox_knowledge": "passed: AppTest rendered Inbox and Knowledge views",
+    "mcp_process_inbox": "passed: MCP startup, process_inbox, and query_memory",
+    "unified_retrieval": "passed: separated Knowledge and Experience sections",
+    "pytest": "passed: 22 passed",
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "mypy": "passed: strict",
+    "package_install": "passed: editable install experience-brain 0.2.3",
+    "cli_lint": "passed",
+    "dashboard_startup": "passed: Streamlit health endpoint returned ok",
+    "mcp_startup": "passed: in-process tool listing and process_inbox smoke",
+    "real_memoryarena_inference": "not_started"
+  }
+}

@@ -1,0 +1,15 @@
+experiment_id: EXP-03.1
+software_version: v0.2.2
+commit: b6fb7e07ab7961f3fe7e56d78a8f490990571618
+agent:
+  interface: codex_cli
+  model: gpt-5.5
+  reasoning_effort: medium
+data:
+  events_path: data/events.jsonl
+  experiences_path: data/experiences.jsonl
+dashboard:
+  command: experience dashboard
+  review_experience_id: EXP-327D87ACD4
+  action: confirm
+real_memoryarena_inference_run: false

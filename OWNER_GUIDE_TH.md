@@ -279,3 +279,41 @@ Agent ต้องสรุปเพียง 4 ส่วน:
 4. ทำ ablation และวิเคราะห์ผล
 5. เขียน paper และเผยแพร่บน arXiv
 6. หลังจากนั้นจึงทดลองกับ LabLoop และ ThaiPhaLex
+## 16. Knowledge Inbox
+
+ระบบมีความจำสองแบบที่ต้องแยกกัน:
+
+- Knowledge = สิ่งที่ Agent อ่านจากไฟล์หรือแหล่งข้อมูล
+- Experience = สิ่งที่ Agent ลงมือทำจริงและเห็นผลลัพธ์จริง
+- Rules = กฎที่ owner หรือ project กำหนด
+- Working Context = เรื่องที่สำคัญในงานปัจจุบัน
+
+ไฟล์จาก paper, เอกสาร, spreadsheet หรือ source code จะกลายเป็น Knowledge
+ไม่ใช่ Experience โดยอัตโนมัติ
+
+workflow แบบ low-code:
+
+```text
+วางไฟล์ใน inbox/
+-> สั่ง process inbox
+-> เปิด Dashboard
+-> ดูแท็บ Inbox และ Knowledge
+-> session ถัดไป Agent ค้นคืน Knowledge ได้
+```
+
+หรือใช้ Dashboard:
+
+```text
+experience dashboard
+-> Inbox
+-> Upload Files
+-> Process Inbox
+-> ตรวจ Knowledge
+```
+
+ไฟล์ที่รองรับในรอบนี้: `.md`, `.txt`, `.json`, `.jsonl`, `.yaml`, `.yml`,
+`.csv`, source-code text files, text-based `.pdf`, `.docx`, และ `.xlsx`
+
+ถ้าไฟล์ซ้ำ ระบบจะตรวจด้วย content hash และไม่สร้าง Knowledge ซ้ำแบบเงียบ ๆ
+ถ้าไฟล์ยังไม่รองรับ อ่านไม่ได้ สแกนเป็นรูปภาพ เข้ารหัส หรือเป็น audio/video
+ระบบจะแสดงสถานะเช่น `unsupported`, `needs_extractor`, หรือ `error`

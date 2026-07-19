@@ -4,26 +4,31 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "experience-brain"
-version = "0.1.0"
-description = "Deterministic, provenance-preserving Lite profile for Experience Brain"
+version = "0.2.3"
+description = "Lean Agent-CLI-first Experience Brain POC with live MCP workflow"
+readme = "README.md"
+license = {text = "Apache-2.0"}
 requires-python = ">=3.11,<3.12"
 dependencies = [
-  "PyYAML>=6.0,<7",
+  "mcp>=1.0,<2",
+  "openpyxl>=3.1,<4",
+  "pydantic>=2.7,<3",
+  "pypdf>=4,<7",
+  "python-docx>=1.1,<2",
+  "streamlit>=1.36,<2",
   "typer>=0.12,<1",
-  "tiktoken>=0.7,<1",
 ]
 
 [project.optional-dependencies]
 dev = [
   "mypy>=1.10,<2",
   "pytest>=8.0,<9",
-  "pytest-cov>=5.0,<7",
   "ruff>=0.5,<1",
-  "types-PyYAML>=6.0,<7",
 ]
 
 [project.scripts]
-brain = "experience_brain.cli:app"
+experience = "experience_brain.cli:app"
+experience-brain-mcp = "experience_brain.mcp_server:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -34,9 +39,6 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-
-[tool.coverage.run]
-source = ["experience_brain"]
 
 [tool.ruff]
 line-length = 100
@@ -49,3 +51,4 @@ select = ["E", "F", "I", "UP"]
 python_version = "3.11"
 strict = true
 files = ["src", "tests"]
+mypy_path = ["benchmark-exp/memoryarena"]
