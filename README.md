@@ -74,26 +74,42 @@ similarity alone.
 - local single-owner Streamlit Dashboard for review and ingestion;
 - isolated MemoryArena adapter and C0/C1/C2 protocol dry validation.
 
-## Quick Start
+## Install
 
-Requirements: Python `3.11` and a local terminal. Windows PowerShell is the primary
-validated environment.
+Requirements: Git, Python `3.11`, and a local terminal. Windows PowerShell is the
+primary validated environment.
+
+### Windows PowerShell
 
 ```powershell
+git clone https://github.com/siriponsri/experience-brain.git
+cd experience-brain
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
-
 experience status
-experience dashboard
+experience lint
 ```
 
-The Dashboard opens locally in a browser. Daily review does not require Python code,
-Git, record IDs, or manual JSONL editing.
+`experience status` should print the software version and JSONL record counts.
+`experience lint` should finish with `lint passed`.
 
-For macOS or Linux, activate with `source .venv/bin/activate`; the Python core is
-cross-platform, while the current owner workflow is validated Windows-first.
+### macOS Or Linux
+
+```bash
+git clone https://github.com/siriponsri/experience-brain.git
+cd experience-brain
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+experience status
+experience lint
+```
+
+The Python core is cross-platform, while the current owner workflow is validated
+Windows-first.
 
 ## Dashboard
 
@@ -109,12 +125,17 @@ inspection, and failure handling.
 
 ## Codex And MCP
 
-Install the package, then register the local stdio server:
+With the virtual environment active, register the local stdio server from the
+repository root:
 
 ```powershell
 codex mcp add experience-brain -- python -m experience_brain.mcp_server --root .
 codex mcp list
 ```
+
+Restart Codex after registration. `codex mcp list` should show `experience-brain` as
+enabled. Start Codex from this repository so that `--root .` continues to point to the
+intended local store.
 
 The MCP server is the primary agent integration bridge. It exposes neutral session,
 capture, consolidation, retrieval, Knowledge Inbox, and telemetry tools without
@@ -142,20 +163,118 @@ The `experience` CLI is a fallback operational and troubleshooting interface.
 The [CLI reference](docs/CLI_REFERENCE.md) documents all public commands, options, safe
 examples, and intended audiences.
 
-## No-Code Owner Workflow
+## Step-By-Step Usage
 
-Experience Brain is a **low-code setup, no-code daily review and knowledge-ingestion
-workflow**:
+Experience Brain uses MCP for agent activity and the Dashboard for owner review. After
+the one-time installation and MCP registration above, use this workflow.
 
-1. Install the package and configure MCP once.
-2. Start Experience Brain and open the Dashboard.
-3. Upload supported source files in Inbox and process them as Knowledge.
-4. Review candidate Experience in Review Queue.
-5. Inspect evidence, provenance, and source lineage when needed.
-6. Let the agent retrieve relevant memory in later sessions.
+### 1. Start A Grounded Session
 
-This is not a one-click installer or cloud service. Normal daily operation does not
+Open Codex in the repository and give it a concrete project name, session ID, and goal:
+
+```text
+Use the Experience Brain MCP server for this task. Start session SESSION-001 for
+project demo with the goal "Fix and verify the parser tests". Record externally visible
+decisions, tool activity, errors, file changes, feedback, and outcomes. Do not record
+hidden chain-of-thought.
+```
+
+Codex should call `start_session`. A `session_start` Event is appended to
+`data/events.jsonl`; the raw history is not rewritten later.
+
+### 2. Retrieve Relevant Experience Before Work
+
+Ask in natural language:
+
+```text
+query experience: How have we fixed parser test failures in this project before?
+```
+
+Codex should call `query_experience` with the current project. A first session may
+correctly return no match. In later sessions, inspect the evidence and project label
+before applying a retrieved lesson.
+
+### 3. Perform The Task And Capture Outcomes
+
+Continue the task normally in Codex. Ask it to record only externally visible facts,
+such as a command result, error signature, selected approach, owner feedback, or test
+outcome. Secrets, personal or patient data, benchmark leakage, and hidden reasoning are
+redacted before storage.
+
+### 4. End And Consolidate The Session
+
+When the work is complete, state the observed result:
+
+```text
+Record that the parser tests passed, end Experience Brain session SESSION-001 with a
+successful outcome, and consolidate the session.
+```
+
+Codex should call `end_session` with consolidation enabled. This creates candidate
+Experience in `data/experiences.jsonl` when the evidence is sufficient and writes a
+Markdown report under `reports/`.
+
+If a session ended abnormally or was not consolidated, use:
+
+```text
+process session
+```
+
+### 5. Review The Result
+
+Ask Codex:
+
+```text
+review latest
+```
+
+For visual review, open the local Dashboard:
+
+```powershell
+experience dashboard
+```
+
+Open **Review Queue**, inspect the evidence and provenance, then confirm, edit,
+supersede, invalidate, or retire the candidate as appropriate. Daily review does not
 require editing JSONL, writing Python, using Git, or knowing record IDs in advance.
+
+### 6. Add External Knowledge When Needed
+
+In the Dashboard, open **Inbox**, upload a supported text, PDF, DOCX, or XLSX file, and
+select **Process Inbox**. Review the result under **Knowledge**. Imported material stays
+Knowledge; it does not become Experience until an agent performs a grounded action and
+observes an outcome.
+
+The CLI equivalent is:
+
+```powershell
+experience process-inbox --project demo
+experience query-knowledge "What does the parser guide require?" --project demo
+```
+
+### 7. Reuse Experience In The Next Session
+
+Start a new session with a new ID, query relevant Experience before acting, and ask
+Codex to record whether the retrieved item was actually used and whether the task
+succeeded. This closes the Capture -> Consolidate -> Retrieve -> Review / Update loop
+with traceable outcome evidence.
+
+### Fallback CLI Walkthrough
+
+The fallback CLI can exercise the lifecycle without MCP:
+
+```powershell
+experience start-session demo SESSION-CLI-001 --goal "Verify the parser"
+experience query "How did we verify the parser before?" --project demo
+experience record-event demo SESSION-CLI-001 decision agent --content "Use the focused parser test"
+experience record-event demo SESSION-CLI-001 outcome agent --content "Focused parser tests passed" --outcome success
+experience end-session demo SESSION-CLI-001 --summary "Parser verified" --outcome success
+experience review-latest
+experience lint
+```
+
+Use a unique session ID for each run. This is not a one-click installer or cloud
+service; MCP remains the primary agent integration path.
 
 ## Research Evaluation
 
@@ -167,16 +286,6 @@ The adapter, manifests, isolation rules, and smoke protocol have been dry-valida
 No real benchmark inference has been run. Experience Brain therefore makes **no claim
 of benchmark improvement**. See [`benchmark-exp/memoryarena/`](benchmark-exp/memoryarena/)
 and [EXP-04](experiments/EXP-04-memoryarena-benchmark-integration/README.md).
-
-## ThaiPhaLex Pilot
-
-ThaiPhaLex IS1 is a proposed real-world dogfooding pilot for cross-session research
-work. It must use an isolated store and must not contaminate Experience Brain's
-development data or any MemoryArena condition store. Pilot observations are
-qualitative and operational evidence, not controlled benchmark proof.
-
-See the [ThaiPhaLex pilot protocol](docs/THAIPHALEX_PILOT.md). The pilot is documented
-but has not been started by this release.
 
 ## Limitations
 
@@ -190,7 +299,7 @@ but has not been started by this release.
 ## Roadmap
 
 1. **Public Research Preview** - repository, Dashboard UX, documentation, and asset quality.
-2. **ThaiPhaLex dogfooding** - isolated operational pilot and failure-mode discovery.
+2. **Isolated dogfooding** - operational validation and failure-mode discovery.
 3. **Controlled benchmark** - MemoryArena C0/C1/C2 runs and ablations.
 4. **Research paper** - claims only after controlled evidence is available.
 
