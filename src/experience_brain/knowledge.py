@@ -78,7 +78,12 @@ def inbox_files(root: Path) -> list[Path]:
     base = inbox_dir(root)
     if not base.exists():
         return []
-    return sorted(path for path in base.rglob("*") if path.is_file())
+    return sorted(
+        path
+        for path in base.rglob("*")
+        if path.is_file()
+        and all(part and not part.startswith(".") for part in path.relative_to(base).parts)
+    )
 
 
 def relative_inbox_name(root: Path, path: Path) -> str:

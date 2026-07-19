@@ -50,6 +50,10 @@ def test_process_inbox_creates_traceable_knowledge_and_detects_duplicates(
     brain_root: Path,
 ) -> None:
     inbox = brain_root / "inbox"
+    (inbox / ".gitkeep").write_text(
+        "Owner file drop inbox. Keep this directory in the repository.",
+        encoding="utf-8",
+    )
     markdown = inbox / "medication-notes.md"
     markdown.write_text(
         "# Medication Notes\n\nWarfarin requires INR monitoring.\nNever store patient name=Jane.",
@@ -76,6 +80,7 @@ def test_process_inbox_creates_traceable_knowledge_and_detects_duplicates(
 
     assert (brain_root / "data" / "knowledge.jsonl").read_bytes().startswith(before)
     statuses = {result.filename: result.status for result in results}
+    assert ".gitkeep" not in statuses
     assert statuses["medication-notes.md"] == KnowledgeStatus.proposed.value
     assert statuses["z-medication-copy.txt"] == "duplicate"
     assert statuses["table.json"] == KnowledgeStatus.proposed.value
@@ -84,6 +89,7 @@ def test_process_inbox_creates_traceable_knowledge_and_detects_duplicates(
 
     knowledge = read_knowledge(brain_root)
     assert len(knowledge) == 4
+    assert all(item.source_filename != ".gitkeep" for item in knowledge)
     medication = next(item for item in knowledge if item.source_filename == "medication-notes.md")
     assert medication.provenance.redactions
     assert "[REDACTED]" in " ".join([medication.summary, *medication.key_facts])

@@ -73,11 +73,24 @@ pytest, Ruff, mypy, and `experience lint` passed.
 
 No MemoryArena real inference was started.
 
+Owner-live validation on commit `2e1f3d8` also passed. A harmless Markdown file
+placed in `inbox/` produced one source-provenanced Knowledge record for the
+owner test document. Ingestion did not change `data/experiences.jsonl`. CLI and
+in-process MCP retrieval found the Knowledge in a later isolated context, unified
+retrieval kept Relevant Knowledge and Relevant Experience separated, and an
+unrelated clinical query returned no match.
+
+This validation exposed one small bug: the inbox processor treated `.gitkeep` as
+an owner source file. The bug was fixed by skipping dotfiles in `inbox/`, covered
+with a regression test, and the accidental `.gitkeep` Knowledge record was
+invalidated append-only rather than removed.
+
 ## Limitations
 
 This experiment creates the Knowledge Inbox and dual-memory foundation only. It
 does not make a benchmark performance claim and does not change the broader
-MemoryArena research protocol.
+MemoryArena research protocol. Retrieval remains lexical, so owner-live success
+does not imply semantic retrieval quality beyond the tested scenarios.
 
 ## Decision
 
